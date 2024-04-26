@@ -64,7 +64,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.freezonex.aps.ApsApplication</mainClass>
-                    <skip>true</skip>
+                    <layout>JAR</layout>
                 </configuration>
                 <executions>
                     <execution>
