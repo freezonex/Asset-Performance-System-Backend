@@ -1,27 +1,10 @@
-# Stage 1: Build the application using Maven
-FROM maven:3.8.5-openjdk-17 as build
-
-# Copy your source code to the container
-COPY src /home/app/src
-COPY pom.xml /home/app
-
-# Set the working directory for the build
-WORKDIR /home/app
-
-# Package the application, skipping tests
-RUN mvn package -DskipTests
-
-# Stage 2: Create the image with the JAR file
-FROM openjdk:17
-
-# Copy the JAR file from the build stage to the /app directory in the image
-COPY --from=build /home/app/target/aps-0.0.1-SNAPSHOT.jar /app/app.jar
-
-# Set the working directory to /app
-WORKDIR /app
-
-# Expose the port your app runs on
+# 该镜像需要依赖的基础镜像
+FROM openjdk:8
+# 将当前目录下的jar包复制到docker容器的/目录下
+ADD ./aps-1.0.0-SNAPSHOT.jar /aps-1.0.0-SNAPSHOT.jar
+# 声明服务运行在8080端口
 EXPOSE 8080
-
-# Command to run your app using the java binary
-CMD ["java", "-jar", "app.jar"]
+# 指定docker容器启动时运行jar包
+ENTRYPOINT ["java", "-jar","/aps-1.0.0-SNAPSHOT.jar"]
+# 指定维护者的名字
+MAINTAINER aps
