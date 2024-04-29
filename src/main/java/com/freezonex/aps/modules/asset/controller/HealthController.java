@@ -1,4 +1,4 @@
-package com.freezonex.aps.controller;
+package com.freezonex.aps.modules.asset.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.freezonex.aps.common.api.CommonPage;
@@ -7,20 +7,24 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-@Slf4j
 @Controller
 @Api(tags = "HealthController")
 @Tag(name = "HealthController",description = "心跳检测")
 public class HealthController {
+
+    private static final Logger logger = LogManager.getLogger(HealthController.class);
     @GetMapping("/health")
+    @ResponseBody
     public String health() {
-        log.info("App health check.");
+        logger.info("health is ok!");
         return "health";
     }
 
