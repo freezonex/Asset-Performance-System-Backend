@@ -1,6 +1,12 @@
 package com.freezonex.aps.common.exception;
 
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.freezonex.aps.common.api.CommonResult;
+import com.freezonex.aps.common.api.ResultCode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,7 +27,19 @@ public class GlobalExceptionHandler {
         if (e.getErrorCode() != null) {
             return CommonResult.failed(e.getErrorCode());
         }
-        return CommonResult.failed(e.getMessage());
+        if (e.getMessage() != null){
+            return CommonResult.failed(e.getMessage());
+        }
+        return CommonResult.failed(ResultCode.FAILED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(JSONObject.toJSONString(
+                        CommonResult.failed(ResultCode.FAILED)
+                        ,SerializerFeature.WriteMapNullValue)
+                );
     }
 
     @ResponseBody
