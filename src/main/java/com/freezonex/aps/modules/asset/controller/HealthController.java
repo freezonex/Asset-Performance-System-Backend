@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @Api(tags = "HealthController")
-@Tag(name = "HealthController",description = "心跳检测")
+@Tag(name = "HealthController",description = "health")
 public class HealthController {
 
     private static final Logger logger = LogManager.getLogger(HealthController.class);
@@ -29,7 +29,7 @@ public class HealthController {
     }
 
 
-    @ApiOperation("分页")
+    @ApiOperation("page")
     @RequestMapping(value = "/page", method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<CommonPage<String>> list() {
