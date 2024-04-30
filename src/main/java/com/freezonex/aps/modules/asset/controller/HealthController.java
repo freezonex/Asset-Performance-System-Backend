@@ -48,7 +48,7 @@ public class HealthController {
     @RequestMapping(value = "/failed2", method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<CommonPage<String>> failed2() {
-        return CommonResult.failed("自定义错误信息!");
+        return CommonResult.failed("Custom error message!");
     }
 
 }
