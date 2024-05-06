@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@MapperScan({"com.freezonex.aps.*.mapper"})
+@MapperScan({"com.freezonex.aps.*.*.mapper"})
 public class MyBatisConfig {
 
     @Bean

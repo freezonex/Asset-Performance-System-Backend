@@ -3,7 +3,9 @@ package com.freezonex.aps.common.api;
 import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 分页数据封装类
@@ -25,6 +27,32 @@ public class CommonPage<T> {
         result.setTotal(pageResult.getTotal());
         result.setTotalPage(Convert.toInt(pageResult.getTotal()/pageResult.getSize()+1));
         result.setList(pageResult.getRecords());
+        return result;
+    }
+
+    public static <T,R> CommonPage<R> restPage(Page<T> pageResult, Function<T, R> convertFunction) {
+        CommonPage<R> result = new CommonPage<>();
+        result.setPageNum(Convert.toInt(pageResult.getCurrent()));
+        result.setPageSize(Convert.toInt(pageResult.getSize()));
+        result.setTotal(pageResult.getTotal());
+        result.setTotalPage(Convert.toInt(pageResult.getTotal()/pageResult.getSize()+1));
+        List<R> list = converts(pageResult.getRecords(),convertFunction);
+        result.setList(list);
+        return result;
+    }
+
+    public static <T, R> List<R> converts(List<T> inputs, Function<T, R> convertFunction) {
+        if (inputs == null) {
+            return null;
+        }
+        if (inputs.size() == 0) {
+            return new ArrayList<R>();
+        }
+        List<R> result = new ArrayList<R>();
+        for (T input : inputs) {
+            R r = convertFunction.apply(input);
+            result.add(r);
+        }
         return result;
     }
 
