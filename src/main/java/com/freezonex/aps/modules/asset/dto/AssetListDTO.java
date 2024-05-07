@@ -19,13 +19,17 @@ public class AssetListDTO implements Serializable {
 
     private String assetName;
 
-    private Integer assetType;
+    private Long assetTypeId;
+
+    private String assetType;
 
     private String vendorModel;
 
     private String description;
 
     private String sn;
+
+    private Integer usedStatus;
 
     private Integer status;
 

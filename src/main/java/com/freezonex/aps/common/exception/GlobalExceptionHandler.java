@@ -1,10 +1,10 @@
 package com.freezonex.aps.common.exception;
 
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.freezonex.aps.common.api.CommonResult;
 import com.freezonex.aps.common.api.ResultCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 全局异常处理
  */
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ResponseBody
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
+        log.error("Internal system exception, exception information:", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(JSONObject.toJSONString(
                         CommonResult.failed(ResultCode.FAILED)

@@ -2,11 +2,10 @@ package com.freezonex.aps.modules.asset.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -14,17 +13,17 @@ import lombok.Setter;
 
 /**
  * <p>
- * asset
+ * asset type
  * </p>
  *
  * @author supos
- * @since 2024-05-06
+ * @since 2024-05-07
  */
 @Getter
 @Setter
-@ApiModel(value = "Asset Object", description = "asset")
-@TableName(value = "asset", autoResultMap = true)
-public class Asset implements Serializable {
+@TableName("asset_type")
+@ApiModel(value = "AssetType Object", description = "asset type")
+public class AssetType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,39 +31,13 @@ public class Asset implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private String assetId;
-
-    private String assetName;
-
-    private Long assetTypeId;
-
     private String assetType;
 
-    private String vendorModel;
+    private String unit;
 
-    private String description;
+    private String supplierName;
 
-    private String sn;
-
-    private Integer usedStatus;
-
-    private Integer status;
-
-    private String department;
-
-    private String location;
-
-    private String value;
-
-    private String responsiblePerson;
-
-    private Date installationDate;
-
-    private String maintenanceLog;
-
-    private String spareParts;
-
-    private String documentation;
+    private String icon;
 
     private Date gmtCreate;
 
@@ -72,4 +45,6 @@ public class Asset implements Serializable {
 
     @TableLogic
     private Integer deleted;
+
+
 }

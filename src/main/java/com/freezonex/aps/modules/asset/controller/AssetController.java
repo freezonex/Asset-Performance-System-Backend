@@ -5,7 +5,9 @@ import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.common.api.CommonResult;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.service.AssetService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,8 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/asset")
+@Api(tags = "AssetController")
+@Tag(name = "AssetController",description = "asset")
 public class AssetController {
 
     @Resource
