@@ -5,6 +5,10 @@ import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.model.Asset;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * asset 服务类
@@ -31,4 +35,6 @@ public interface AssetService extends IService<Asset> {
     Boolean update(AssetUpdateReq req);
 
     Boolean delete(AssetDeleteReq req);
+
+    Map<Long,Long> queryGroupByAssetType(Collection<Long> assetTypeIds);
 }

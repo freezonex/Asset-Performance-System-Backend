@@ -33,6 +33,8 @@ public class AssetType implements Serializable {
 
     private String assetType;
 
+    private Integer safetyStockQuantity;
+
     private String unit;
 
     private String supplierName;

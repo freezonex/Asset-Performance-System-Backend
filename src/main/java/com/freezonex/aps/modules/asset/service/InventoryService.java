@@ -1,13 +1,9 @@
 package com.freezonex.aps.modules.asset.service;
 
-import com.freezonex.aps.common.api.CommonPage;
-import com.freezonex.aps.modules.asset.dto.InventoryListDTO;
-import com.freezonex.aps.modules.asset.dto.InventoryListReq;
-import com.freezonex.aps.modules.asset.dto.SafetyLevelAssetTypeListDTO;
-import com.freezonex.aps.modules.asset.model.Inventory;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
+import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.modules.asset.dto.*;
+import com.freezonex.aps.modules.asset.model.Inventory;
 
 /**
  * <p>
@@ -21,5 +17,11 @@ public interface InventoryService extends IService<Inventory> {
 
     CommonPage<InventoryListDTO> list(InventoryListReq req);
 
-    List<SafetyLevelAssetTypeListDTO> safetyLevelAssetTypeList();
+    CommonPage<InventoryListDTO> queryByAssetTypeList(InventoryByAssetTypeListReq req);
+
+    CommonPage<SafetyLevelAssetTypeListDTO> safetyLevelAssetTypeList(InventorySafetyLevelAssetTypeReq req);
+
+    CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req);
+
+
 }

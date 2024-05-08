@@ -5,8 +5,8 @@ import lombok.Data;
 
 /**
  * @author penglifr
- * @since 2024/05/07 13:40
+ * @since 2024/05/08 16:12
  */
 @Data
-public class InventoryListReq extends BasePage {
+public class InventorySafetyLevelAssetTypeReq extends BasePage {
 }

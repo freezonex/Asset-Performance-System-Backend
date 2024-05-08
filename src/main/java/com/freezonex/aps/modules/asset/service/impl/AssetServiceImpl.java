@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,7 +15,7 @@ import com.freezonex.aps.modules.asset.service.AssetService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * <p>
@@ -59,6 +60,23 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public Boolean delete(AssetDeleteReq req) {
         return this.removeById(req.getId());
+    }
+
+    @Override
+    public Map<Long, Long> queryGroupByAssetType(Collection<Long> assetTypeIds) {
+        Map<Long, Long> assetTypeQuantityMap = new HashMap<>();
+        QueryWrapper<Asset> query = new QueryWrapper<>();
+        query.select("asset_type_id assetTypeId", "count(id) quantity");
+        query.eq("used_status", 0);
+        query.in("asset_type_id", assetTypeIds);
+        query.groupBy("asset_type_id");
+        List<Map<String, Object>> maps = this.getBaseMapper().selectMaps(query);
+        for (Map<String, Object> map : maps) {
+            Long assetTypeId = (Long) map.get("assetTypeId");
+            Long quantity = (Long) map.get("quantity");
+            assetTypeQuantityMap.put(assetTypeId, quantity);
+        }
+        return assetTypeQuantityMap;
     }
 
 }
