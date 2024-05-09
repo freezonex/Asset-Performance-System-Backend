@@ -40,19 +40,19 @@ public class InventoryController {
     }
 
     @ApiOperation("Inventory Detail list query by asset type")
-    @RequestMapping(value = "/queryByAssetTypeList", method = RequestMethod.GET)
+    @RequestMapping(value = "/queryByAssetTypeList", method = RequestMethod.POST)
     public CommonResult<CommonPage<InventoryDetailListDTO>> queryByAssetTypeList(@Validated @RequestBody InventoryByAssetTypeListReq req) {
         return CommonResult.success(inventoryService.queryByAssetTypeList(req));
     }
 
     @ApiOperation("Safety level asset type list")
-    @RequestMapping(value = "/assetType/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/assetType/list", method = RequestMethod.POST)
     public CommonResult<CommonPage<SafetyLevelAssetTypeListDTO>> safetyLevelAssetTypeList(InventorySafetyLevelAssetTypeReq req) {
         return CommonResult.success(inventoryService.safetyLevelAssetTypeList(req));
     }
 
     @ApiOperation("Safety level asset type quantity list")
-    @RequestMapping(value = "/assetTypeQuantity/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/assetTypeQuantity/list", method = RequestMethod.POST)
     public CommonResult<CommonPage<SafetyLevelAssetTypeQuantityListDTO>> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req) {
         return CommonResult.success(inventoryService.queryAssetTypeQuantity(req));
     }
