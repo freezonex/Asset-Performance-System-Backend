@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -29,7 +30,10 @@ public class WorkOrderCreateReq {
 
     private Date completionTime;
 
-    private String status;
+    @ApiModelProperty(
+            value = "1：Open 2：In Progress 3：Pending Review 4：Dued 5：Closed"
+    )
+    private Integer status;
 
     private String assignedTo;
 

@@ -46,4 +46,9 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
         return CommonPage.restPage(assetPage, assetTypeConvert::toDTO);
     }
 
+    @Override
+    public AssetTypeListDTO getByAssetTypeId(Long assetTypeId) {
+        return assetTypeConvert.toDTO(this.getById(assetTypeId));
+    }
+
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -112,7 +113,29 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         query.eq(Inventory::getAssetTypeId, req.getAssetTypeId());
         query.orderByAsc(Inventory::getExpectedDate);
         Page<Inventory> assetPage = this.getBaseMapper().selectPage(page, query);
-        return CommonPage.restPage(assetPage, inventoryConvert::toDetailDTO);
+        if (assetPage.getRecords().size() == 0) {
+            //初始化一条记录 保持和 列表页面一致
+            AssetTypeListDTO assetTypeListDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
+            if (assetTypeListDTO != null) {
+                assetPage.setRecords(Lists.newArrayList(initInventory(assetTypeListDTO)));
+            }
+        }
+        CommonPage<InventoryDetailListDTO> result = CommonPage.restPage(assetPage, inventoryConvert::toDetailDTO);
+        Date today = new Date();
+        AtomicInteger num = new AtomicInteger();
+        result.getList().forEach(v -> {
+            if (v.getExpectedDate().before(today)) {
+                v.setColorType(0);
+            } else {
+                if (num.get() > 0) {
+                    v.setColorType(2);
+                } else {
+                    v.setColorType(1);
+                }
+                num.getAndIncrement();
+            }
+        });
+        return result;
     }
 
     @Override

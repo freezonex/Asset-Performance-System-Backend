@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -21,5 +22,8 @@ public class InventoryDetailListDTO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date expectedDate;
 
+    @ApiModelProperty(
+            value = "color type 0:Gray 1:Blue 2:Black"
+    )
     private Integer colorType;
 }

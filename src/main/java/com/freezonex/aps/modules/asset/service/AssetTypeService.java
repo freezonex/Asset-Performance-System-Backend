@@ -23,4 +23,6 @@ public interface AssetTypeService extends IService<AssetType> {
 
     CommonPage<AssetTypeListDTO> list(BasePage page);
 
+    AssetTypeListDTO getByAssetTypeId(Long assetTypeId);
+
 }

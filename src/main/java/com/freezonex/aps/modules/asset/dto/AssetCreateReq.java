@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -26,8 +27,14 @@ public class AssetCreateReq {
 
     private String sn;
 
+    @ApiModelProperty(
+            value = "0: Not Used 1: Used"
+    )
     private Integer usedStatus;
 
+    @ApiModelProperty(
+            value = "1：Running 2：Maintaining 3：Halt 4：Scheduled Stop"
+    )
     private Integer status;
 
     private String department;
