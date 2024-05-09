@@ -32,7 +32,7 @@ public class AssetTypeController {
     private AssetTypeService assetTypeService;
 
     @ApiOperation("Asset type all list")
-    @RequestMapping(value = "/allList", method = RequestMethod.GET)
+    @RequestMapping(value = "/allList", method = RequestMethod.POST)
     public CommonResult<List<AssetTypeListDTO>> allList() {
         return CommonResult.success(assetTypeService.allList());
     }

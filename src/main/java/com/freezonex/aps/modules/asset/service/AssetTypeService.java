@@ -21,6 +21,6 @@ public interface AssetTypeService extends IService<AssetType> {
 
     List<AssetTypeListDTO> allList();
 
-    CommonPage<AssetTypeListDTO> list(BasePage page, List<Long> assetTypeIds);
+    CommonPage<AssetTypeListDTO> list(BasePage page);
 
 }

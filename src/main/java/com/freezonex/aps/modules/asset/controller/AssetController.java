@@ -31,7 +31,7 @@ public class AssetController {
     private AssetService assetService;
 
     @ApiOperation("asset list")
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     public CommonResult<CommonPage<AssetListDTO>> list(@RequestBody AssetListReq req) {
         return CommonResult.success(assetService.list(req));
     }

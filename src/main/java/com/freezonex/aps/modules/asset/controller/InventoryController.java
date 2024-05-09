@@ -34,14 +34,14 @@ public class InventoryController {
     private InventoryService inventoryService;
 
     @ApiOperation("Inventory list")
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     public CommonResult<CommonPage<InventoryListDTO>> list(@RequestBody InventoryListReq req) {
         return CommonResult.success(inventoryService.list(req));
     }
 
-    @ApiOperation("Inventory list query by asset type")
+    @ApiOperation("Inventory Detail list query by asset type")
     @RequestMapping(value = "/queryByAssetTypeList", method = RequestMethod.GET)
-    public CommonResult<CommonPage<InventoryListDTO>> queryByAssetTypeList(@Validated @RequestBody InventoryByAssetTypeListReq req) {
+    public CommonResult<CommonPage<InventoryDetailListDTO>> queryByAssetTypeList(@Validated @RequestBody InventoryByAssetTypeListReq req) {
         return CommonResult.success(inventoryService.queryByAssetTypeList(req));
     }
 

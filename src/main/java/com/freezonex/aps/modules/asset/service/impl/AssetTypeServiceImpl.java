@@ -38,12 +38,10 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     }
 
     @Override
-    public CommonPage<AssetTypeListDTO> list(BasePage basePage, List<Long> assetTypeIds) {
+    public CommonPage<AssetTypeListDTO> list(BasePage basePage) {
         Page<AssetType> page = new Page<>(basePage.getPageNum(), basePage.getPageSize());
         LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();
-        if (CollectionUtil.isNotEmpty(assetTypeIds)) {
-            query.in(AssetType::getId, assetTypeIds);
-        }
+        query.orderByAsc(AssetType::getId);
         Page<AssetType> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetTypeConvert::toDTO);
     }

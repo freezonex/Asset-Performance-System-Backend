@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -21,6 +22,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@TableName(value = "inventory", autoResultMap = true)
 @ApiModel(value = "Inventory Object", description = "asset inventory")
 public class Inventory implements Serializable {
 

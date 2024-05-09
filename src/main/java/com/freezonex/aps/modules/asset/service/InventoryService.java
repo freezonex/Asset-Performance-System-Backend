@@ -17,7 +17,7 @@ public interface InventoryService extends IService<Inventory> {
 
     CommonPage<InventoryListDTO> list(InventoryListReq req);
 
-    CommonPage<InventoryListDTO> queryByAssetTypeList(InventoryByAssetTypeListReq req);
+    CommonPage<InventoryDetailListDTO> queryByAssetTypeList(InventoryByAssetTypeListReq req);
 
     CommonPage<SafetyLevelAssetTypeListDTO> safetyLevelAssetTypeList(InventorySafetyLevelAssetTypeReq req);
 

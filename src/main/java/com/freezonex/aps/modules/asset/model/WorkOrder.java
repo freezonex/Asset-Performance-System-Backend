@@ -13,17 +13,17 @@ import lombok.Setter;
 
 /**
  * <p>
- * asset type
+ * work order
  * </p>
  *
  * @author supos
- * @since 2024-05-07
+ * @since 2024-05-09
  */
 @Getter
 @Setter
-@TableName(value = "asset_type", autoResultMap = true)
-@ApiModel(value = "AssetType Object", description = "asset type")
-public class AssetType implements Serializable {
+@TableName(value = "work_order", autoResultMap = true)
+@ApiModel(value = "WorkOrder Object", description = "work order")
+public class WorkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,15 +31,31 @@ public class AssetType implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private String assetType;
+    private String orderId;
 
-    private Integer safetyStockQuantity;
+    private String orderName;
 
-    private String unit;
+    private String orderType;
 
-    private String supplierName;
+    private String description;
 
-    private String icon;
+    private String assetId;
+
+    private Integer priority;
+
+    private Date creationTime;
+
+    private Date dueTime;
+
+    private Date completionTime;
+
+    private String status;
+
+    private String assignedTo;
+
+    private String createdBy;
+
+    private String notes;
 
     private Date gmtCreate;
 
