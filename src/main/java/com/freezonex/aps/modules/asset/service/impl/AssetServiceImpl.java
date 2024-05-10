@@ -12,6 +12,7 @@ import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.AssetMapper;
 import com.freezonex.aps.modules.asset.model.Asset;
 import com.freezonex.aps.modules.asset.service.AssetService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,10 +36,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public CommonPage<AssetListDTO> list(AssetListReq req) {
         Page<Asset> page = new Page<>(req.getPageNum(), req.getPageSize());
         LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
-        query.eq(Objects.nonNull(req.getAssetId()), Asset::getAssetId, req.getAssetId());
-        query.eq(Objects.nonNull(req.getAssetName()), Asset::getAssetName, req.getAssetName());
+        query.eq(StringUtils.isNotBlank(req.getAssetId()), Asset::getAssetId, req.getAssetId());
+        query.eq(StringUtils.isNotBlank(req.getAssetName()), Asset::getAssetName, req.getAssetName());
         query.eq(Objects.nonNull(req.getAssetType()), Asset::getAssetType, req.getAssetType());
-        query.eq(Objects.nonNull(req.getResponsiblePerson()), Asset::getResponsiblePerson, req.getResponsiblePerson());
+        query.eq(StringUtils.isNotBlank(req.getResponsiblePerson()), Asset::getResponsiblePerson, req.getResponsiblePerson());
         Page<Asset> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetConvert::toDTO);
     }
@@ -77,6 +78,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             assetTypeQuantityMap.put(assetTypeId, quantity);
         }
         return assetTypeQuantityMap;
+    }
+
+    @Override
+    public List<AssetListDTO> queryByAssetTypeId(Long assetTypeId) {
+        LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
+        query.eq( Asset::getAssetTypeId, assetTypeId);
+        List<Asset> list = this.list(query);
+        return assetConvert.toDTOList(list);
     }
 
 }

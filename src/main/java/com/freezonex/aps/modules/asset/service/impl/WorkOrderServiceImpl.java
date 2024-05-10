@@ -11,6 +11,7 @@ import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.WorkOrderMapper;
 import com.freezonex.aps.modules.asset.model.WorkOrder;
 import com.freezonex.aps.modules.asset.service.WorkOrderService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -34,9 +35,9 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     public CommonPage<WorkOrderListDTO> list(WorkOrderListReq req) {
         Page<WorkOrder> page = new Page<>(req.getPageNum(), req.getPageSize());
         LambdaQueryWrapper<WorkOrder> query = new LambdaQueryWrapper<>();
-        query.eq(Objects.nonNull(req.getOrderId()), WorkOrder::getOrderId, req.getOrderId());
-        query.eq(Objects.nonNull(req.getOrderName()), WorkOrder::getOrderName, req.getOrderName());
-        query.eq(Objects.nonNull(req.getOrderType()), WorkOrder::getOrderType, req.getOrderType());
+        query.eq(StringUtils.isNotBlank(req.getOrderId()), WorkOrder::getOrderId, req.getOrderId());
+        query.eq(StringUtils.isNotBlank(req.getOrderName()), WorkOrder::getOrderName, req.getOrderName());
+        query.eq(StringUtils.isNotBlank(req.getOrderType()), WorkOrder::getOrderType, req.getOrderType());
         query.eq(Objects.nonNull(req.getCreationTime()), WorkOrder::getCreationTime, req.getCreationTime());
         Page<WorkOrder> workOrderPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(workOrderPage, workOrderConvert::toDTO);

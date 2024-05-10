@@ -23,5 +23,6 @@ public interface InventoryService extends IService<Inventory> {
 
     CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req);
 
+    InventoryChartDataDTO queryChartData(InventoryChartDataReq req);
 
 }

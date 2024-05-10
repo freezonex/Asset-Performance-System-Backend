@@ -48,6 +48,8 @@ public class Asset implements Serializable {
 
     private Integer usedStatus;
 
+    private Date usedDate;
+
     private Integer status;
 
     private String department;
