@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,11 @@ import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -40,7 +46,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     @Override
     public CommonPage<InventoryListDTO> list(InventoryListReq req) {
         //1.分页查询已有记录品类
-        CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(req);
+        CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(req, null);
         //2.获取已有品类的记录数据预期时间距离今天最近一条数据
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.in(Inventory::getAssetTypeId, assetTypePage.getList().stream().map(AssetTypeListDTO::getId).collect(Collectors.toList()));
@@ -140,8 +146,48 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
 
     @Override
     public CommonPage<SafetyLevelAssetTypeListDTO> safetyLevelAssetTypeList(InventorySafetyLevelAssetTypeReq req) {
-        CommonPage<AssetTypeListDTO> data = assetTypeService.list(req);
+        List<AssetTypeListDTO> safetyLevelAssetType = Lists.newArrayList();
+        //查询所有 asset type
+        List<AssetTypeListDTO> assetTypeAllList = assetTypeService.allList();
+        Map<Long, AssetTypeListDTO> assetTypeMap = assetTypeAllList.stream().collect(Collectors.toMap(AssetTypeListDTO::getId, v -> v));
+        //查询 asset type 的库存
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet());
+
+        //查询所有 inventory
+        List<Inventory> list = this.list();
+        //inventory 按照 asset type id 分组
+        Map<Long, List<Inventory>> assetTypes = list.stream().collect(Collectors.groupingBy(Inventory::getAssetTypeId));
+        //计算 今天的 expected quantity
+        Map<Long, Integer> todayQuantityMap = new HashMap<>();
+        LocalDate now = LocalDate.now();
+        assetTypeAllList.forEach(assetType -> {
+            List<Inventory> inventoryList = assetTypes.get(assetType.getId());
+            List<Inventory> dataList = fillInventory(assetType.getId(), inventoryList);
+            for (Inventory inventory : dataList) {
+                Date expectedDate = inventory.getExpectedDate();
+                Calendar instance = Calendar.getInstance();
+                instance.setTime(expectedDate);
+                LocalDate expectedLocalDate = LocalDate.of(instance.get(Calendar.YEAR), instance.get(Calendar.MONTH) + 1, instance.get(Calendar.DAY_OF_MONTH));
+                if (expectedLocalDate.isEqual(now)) {
+                    todayQuantityMap.put(assetType.getId(), inventory.getExpectedQuantity());
+                    break;
+                }
+            }
+        });
+
+        for (AssetTypeListDTO dto : assetTypeAllList) {
+            Integer expectedQuantity = todayQuantityMap.get(dto.getId());
+            Long quantity = assetTypeQuantityMap.getOrDefault(dto.getId(), 0L);//默认库存0
+            if (quantity >= expectedQuantity) {
+                //安全预期的 asset type
+                safetyLevelAssetType.add(dto);
+            }
+        }
+        //使用所有符合安全预期的asset type 进行分页查询
+        List<Long> collect = safetyLevelAssetType.stream().map(AssetTypeListDTO::getId).collect(Collectors.toList());
+        CommonPage<AssetTypeListDTO> data = assetTypeService.list(req, collect);
         List<SafetyLevelAssetTypeListDTO> records = Lists.newArrayList();
+        //组装结果
         for (AssetTypeListDTO dto : data.getList()) {
             SafetyLevelAssetTypeListDTO safetyLevelAssetTypeListDTO = new SafetyLevelAssetTypeListDTO();
             safetyLevelAssetTypeListDTO.setId(dto.getId());
@@ -156,6 +202,98 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         pageResult.setTotal(data.getTotal());
         pageResult.setList(records);
         return pageResult;
+    }
+
+    private List<Inventory> fillInventory(Long assetTypeId, List<Inventory> list) {
+        LocalDate now = LocalDate.now();
+        List<Inventory> result = new ArrayList<>();
+        if (CollectionUtil.isEmpty(list)) {
+            Inventory inventory = new Inventory();
+            inventory.setAssetTypeId(assetTypeId);
+            inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            inventory.setExpectedQuantity(0);
+            result.add(inventory);
+            return result;
+        }
+        if (list.size() == 1) {
+            Instant instant = list.get(0).getExpectedDate().toInstant();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
+            if (!localDate.equals(now)) {
+                //如果只有一条记录，并且和今天的日期不同
+                Inventory inventory = new Inventory();
+                inventory.setAssetTypeId(assetTypeId);
+                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                inventory.setExpectedQuantity(0);
+                list.add(inventory);
+            } else {
+                //如果只有一条记录并且正好等于今天的日期
+                return list;
+            }
+        }
+        list.sort(Comparator.comparing(Inventory::getExpectedDate));
+        for (int i = 1; i < list.size(); i++) {
+            //区间填充日期
+            result.addAll(fillInventory(list.get(i - 1), list.get(i)));
+        }
+        result.sort(Comparator.comparing(Inventory::getExpectedDate));
+        Set<Date> set = new HashSet<>();
+        Iterator<Inventory> iterator = result.iterator();
+        while (iterator.hasNext()) {
+            Inventory item = iterator.next();
+            if (set.contains(item.getExpectedDate())) {
+                iterator.remove(); // 删除重复元素
+            } else {
+                set.add(item.getExpectedDate());
+            }
+        }
+        return result;
+    }
+
+    private List<Inventory> fillInventory(Inventory data1, Inventory data2) {
+        Date date1 = data1.getExpectedDate();
+        Date date2 = data2.getExpectedDate();
+        List<Date> dates = findDates(date1, date2);
+        if (dates.size() == 2) {
+            return Lists.newArrayList(data1, data2);
+        }
+        //每天增长值
+        int num = (data2.getExpectedQuantity() - data1.getExpectedQuantity()) / (dates.size() - 1);
+        dates.remove(0);
+        dates.remove(dates.size() - 1);
+        List<Inventory> result = new ArrayList<>();
+        result.add(data1);
+        for (int i = 1; i <= dates.size(); i++) {
+            Inventory inventory = new Inventory();
+            inventory.setAssetTypeId(data1.getAssetTypeId());
+            inventory.setExpectedDate(dates.get(i - 1));
+            inventory.setExpectedQuantity(data1.getExpectedQuantity() + num * i);
+            result.add(inventory);
+        }
+        result.add(data2);
+        return result;
+    }
+
+    private static List<Date> findDates(Date dBegin, Date dEnd) {
+        try {
+            List<Date> allDate = new ArrayList<>();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            dBegin = sdf.parse(sdf.format(dBegin));
+            dEnd = sdf.parse(sdf.format(dEnd));
+
+            allDate.add(dBegin);
+            Calendar calBegin = Calendar.getInstance();
+            // 使用给定的 Date 设置此 Calendar 的时间
+            calBegin.setTime(dBegin);
+
+            // 测试此日期是否在指定日期之后
+            while (dEnd.after(calBegin.getTime())) {
+                calBegin.add(Calendar.DAY_OF_MONTH, 1);
+                allDate.add(calBegin.getTime());
+            }
+            return allDate;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req) {

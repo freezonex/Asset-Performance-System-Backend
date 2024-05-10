@@ -9,12 +9,12 @@ import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.modules.asset.convert.AssetTypeConvert;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
 import com.freezonex.aps.modules.asset.mapper.AssetTypeMapper;
-import com.freezonex.aps.modules.asset.model.Asset;
 import com.freezonex.aps.modules.asset.model.AssetType;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,9 +38,12 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     }
 
     @Override
-    public CommonPage<AssetTypeListDTO> list(BasePage basePage) {
+    public CommonPage<AssetTypeListDTO> list(BasePage basePage, Collection<Long> assetTypeIds) {
         Page<AssetType> page = new Page<>(basePage.getPageNum(), basePage.getPageSize());
         LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();
+        if (CollectionUtil.isNotEmpty(assetTypeIds)) {
+            query.in(AssetType::getId, assetTypeIds);
+        }
         query.orderByAsc(AssetType::getId);
         Page<AssetType> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetTypeConvert::toDTO);

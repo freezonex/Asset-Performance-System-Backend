@@ -7,6 +7,7 @@ import com.freezonex.aps.modules.asset.dto.AssetListReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
 import com.freezonex.aps.modules.asset.model.AssetType;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public interface AssetTypeService extends IService<AssetType> {
 
     List<AssetTypeListDTO> allList();
 
-    CommonPage<AssetTypeListDTO> list(BasePage page);
+    CommonPage<AssetTypeListDTO> list(BasePage page, Collection<Long> assetTypeIds);
 
     AssetTypeListDTO getByAssetTypeId(Long assetTypeId);
 
