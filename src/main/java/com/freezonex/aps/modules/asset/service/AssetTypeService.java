@@ -1,13 +1,11 @@
 package com.freezonex.aps.modules.asset.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.freezonex.aps.common.api.BasePage;
 import com.freezonex.aps.common.api.CommonPage;
-import com.freezonex.aps.modules.asset.dto.AssetListReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
+import com.freezonex.aps.modules.asset.dto.AssetTypeListReq;
 import com.freezonex.aps.modules.asset.model.AssetType;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,7 +20,7 @@ public interface AssetTypeService extends IService<AssetType> {
 
     List<AssetTypeListDTO> allList();
 
-    CommonPage<AssetTypeListDTO> list(BasePage page, Collection<Long> assetTypeIds);
+    CommonPage<AssetTypeListDTO> list(AssetTypeListReq req);
 
     AssetTypeListDTO getByAssetTypeId(Long assetTypeId);
 

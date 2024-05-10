@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.modules.asset.Utils.DateUtils;
 import com.freezonex.aps.modules.asset.convert.InventoryConvert;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.InventoryMapper;
@@ -47,7 +48,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     @Override
     public CommonPage<InventoryListDTO> list(InventoryListReq req) {
         //1.分页查询已有记录品类
-        CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(req, null);
+        AssetTypeListReq assetTypeListReq = new AssetTypeListReq();
+        assetTypeListReq.setPageNum(req.getPageNum());
+        assetTypeListReq.setPageSize(req.getPageSize());
+        assetTypeListReq.setAssetType(req.getAssetType());
+        CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(assetTypeListReq);
         //2.获取已有品类的记录数据预期时间距离今天最近一条数据
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.in(Inventory::getAssetTypeId, assetTypePage.getList().stream().map(AssetTypeListDTO::getId).collect(Collectors.toList()));
@@ -186,7 +191,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         //使用所有符合安全预期的asset type 进行分页查询
         List<Long> collect = safetyLevelAssetType.stream().map(AssetTypeListDTO::getId).collect(Collectors.toList());
-        CommonPage<AssetTypeListDTO> data = assetTypeService.list(req, collect);
+        AssetTypeListReq assetTypeListReq = new AssetTypeListReq();
+        assetTypeListReq.setPageNum(req.getPageNum());
+        assetTypeListReq.setPageSize(req.getPageSize());
+        assetTypeListReq.setAssetTypeIds(collect);
+        CommonPage<AssetTypeListDTO> data = assetTypeService.list(assetTypeListReq);
         List<SafetyLevelAssetTypeListDTO> records = Lists.newArrayList();
         //组装结果
         for (AssetTypeListDTO dto : data.getList()) {
@@ -205,7 +214,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         return pageResult;
     }
 
-    private List<Inventory> fillInventory(Long assetTypeId, List<Inventory> list) {
+    public List<Inventory> fillInventory(Long assetTypeId, List<Inventory> list) {
         LocalDate now = LocalDate.now();
         List<Inventory> result = new ArrayList<>();
         if (CollectionUtil.isEmpty(list)) {
@@ -253,7 +262,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     private List<Inventory> fillInventory(Inventory data1, Inventory data2) {
         Date date1 = data1.getExpectedDate();
         Date date2 = data2.getExpectedDate();
-        List<Date> dates = findDates(date1, date2);
+        List<Date> dates = DateUtils.findDates(date1, date2);
         if (dates.size() == 2) {
             return Lists.newArrayList(data1, data2);
         }
@@ -272,29 +281,6 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         result.add(data2);
         return result;
-    }
-
-    private static List<Date> findDates(Date dBegin, Date dEnd) {
-        try {
-            List<Date> allDate = new ArrayList<>();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            dBegin = sdf.parse(sdf.format(dBegin));
-            dEnd = sdf.parse(sdf.format(dEnd));
-
-            allDate.add(dBegin);
-            Calendar calBegin = Calendar.getInstance();
-            // 使用给定的 Date 设置此 Calendar 的时间
-            calBegin.setTime(dBegin);
-
-            // 测试此日期是否在指定日期之后
-            while (dEnd.after(calBegin.getTime())) {
-                calBegin.add(Calendar.DAY_OF_MONTH, 1);
-                allDate.add(calBegin.getTime());
-            }
-            return allDate;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req) {
@@ -320,54 +306,74 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         Long assetTypeId = req.getAssetTypeId();
         Date startDate = Date.from(LocalDate.now().minusDays(4).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        //更具日期范围查询 inventory
+        //查询 inventory
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.in(Inventory::getAssetTypeId, assetTypeId);
         query.orderByAsc(Inventory::getAssetTypeId, Inventory::getExpectedDate);
         List<Inventory> inventoryList = this.list(query);
-        //填充 inventory
-        List<Inventory> dataList = fillInventory(assetTypeId, inventoryList);
-        //每日分组
-        Map<LocalDate, Inventory> inventoryDateMap = dataList.stream().collect(Collectors.toMap(v -> LocalDateTime.ofInstant(v.getExpectedDate().toInstant(), ZoneId.systemDefault()).toLocalDate(), v -> v));
+        //查询 asset
+        List<AssetListDTO> assetList = assetService.queryByAssetTypeId(Lists.newArrayList(assetTypeId));
 
-        //查询 资产 计算每天的库存
-        List<AssetListDTO> assetList = assetService.queryByAssetTypeId(assetTypeId);
-        Map<LocalDate, Integer> map = new HashMap<>();//存储每天的库存数据
-        List<LocalDate> localDates = new ArrayList<>();
-        List<String> dates = new ArrayList<>();
+        //填充 inventory
+        List<Inventory> fillInventoryList = fillInventory(assetTypeId, inventoryList);
+
+        //查询日期
+        List<Date> dates = DateUtils.findDates(startDate, endDate);
+
+        //计算每天的库存
+        Map<LocalDate, Integer> dateQuantityMap = calculateDateQuantity(assetList, dates);
+
+        //每日分组
+        Map<LocalDate, Inventory> inventoryDateMap = fillInventoryList.stream().collect(Collectors.toMap(v -> LocalDateTime.ofInstant(v.getExpectedDate().toInstant(), ZoneId.systemDefault()).toLocalDate(), v -> v));
         final String pattern = "MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        for (Date date : findDates(startDate, endDate)) {
-            LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
-            Integer num = map.getOrDefault(localDate, 0);
-            for (AssetListDTO asset : assetList) {
-                LocalDate createDate = LocalDateTime.ofInstant(asset.getGmtCreate().toInstant(), ZoneId.systemDefault()).toLocalDate();
-                if (localDate.isAfter(createDate)) {//如果资产创建日期再计算日期之前
-                    if (asset.getUsedDate() == null || localDate.isBefore(LocalDateTime.ofInstant(asset.getUsedDate().toInstant(), ZoneId.systemDefault()).toLocalDate())) {
-                        //未使用 库存+1 或者 已使用，但是再计算你日期之后使用的 库存+1
-                        num++;
-                    }
-                }
-            }
-            map.put(localDate, num);
-            localDates.add(localDate);
-            dates.add(sdf.format(date));
-        }
+        List<String> dateFormatList = new ArrayList<>();
         //组装数据
         List<InventoryChartDataDTO.ChartData> chartDataList = new ArrayList<>();
-        for (LocalDate localDate : localDates) {
+        for (Date date : dates) {
+            LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
             InventoryChartDataDTO.ChartData chartData = new InventoryChartDataDTO.ChartData();
-            chartData.setQuantity(map.getOrDefault(localDate, 0));
+            chartData.setQuantity(dateQuantityMap.getOrDefault(localDate, 0));
             if (inventoryDateMap.containsKey(localDate)) {
                 chartData.setExpectedQuantity(inventoryDateMap.get(localDate).getExpectedQuantity());
             }
             chartData.setDate(localDate.format(DateTimeFormatter.ofPattern(pattern)));
             chartDataList.add(chartData);
+            dateFormatList.add(sdf.format(date));
         }
         InventoryChartDataDTO inventoryChartDataDTO = new InventoryChartDataDTO();
-        inventoryChartDataDTO.setDates(dates);
+        inventoryChartDataDTO.setDates(dateFormatList);
         inventoryChartDataDTO.setDataList(chartDataList);
         return inventoryChartDataDTO;
+    }
+
+    /**
+     * 计算每天库存数量
+     *
+     * @param assetList 资产列表
+     * @param dates     日期区间
+     * @return result
+     */
+    public Map<LocalDate, Integer> calculateDateQuantity(List<AssetListDTO> assetList, List<Date> dates) {
+        Map<LocalDate, Integer> dateQuantityMap = new HashMap<>();//存储每天的库存数据
+        for (Date date : dates) {
+            LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
+            Integer num = dateQuantityMap.getOrDefault(localDate, 0);
+            if(CollectionUtil.isNotEmpty(assetList)){
+                for (AssetListDTO asset : assetList) {
+                    LocalDate createDate = LocalDateTime.ofInstant(asset.getGmtCreate().toInstant(), ZoneId.systemDefault()).toLocalDate();
+                    if (localDate.isAfter(createDate)) {//如果资产创建日期再计算日期之前
+                        if (asset.getUsedDate() == null || localDate.isBefore(LocalDateTime.ofInstant(asset.getUsedDate().toInstant(), ZoneId.systemDefault()).toLocalDate())) {
+                            //未使用 库存+1 或者 已使用，但是再计算你日期之后使用的 库存+1
+                            num++;
+                        }
+                    }
+                }
+            }
+
+            dateQuantityMap.put(localDate, num);
+        }
+        return dateQuantityMap;
     }
 
 }

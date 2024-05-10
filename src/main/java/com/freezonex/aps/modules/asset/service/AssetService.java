@@ -38,5 +38,5 @@ public interface AssetService extends IService<Asset> {
 
     Map<Long,Long> queryGroupByAssetType(Collection<Long> assetTypeIds);
 
-    List<AssetListDTO> queryByAssetTypeId(Long assetTypeId);
+    List<AssetListDTO> queryByAssetTypeId(Collection<Long> assetTypeId);
 }

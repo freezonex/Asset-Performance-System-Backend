@@ -18,7 +18,7 @@ public class AssetListReq extends BasePage {
 
     private String assetName;
 
-    private Integer assetType;
+    private String assetType;
 
     private String responsiblePerson;
 

@@ -4,17 +4,17 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.freezonex.aps.common.api.BasePage;
 import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.modules.asset.convert.AssetTypeConvert;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
+import com.freezonex.aps.modules.asset.dto.AssetTypeListReq;
 import com.freezonex.aps.modules.asset.mapper.AssetTypeMapper;
 import com.freezonex.aps.modules.asset.model.AssetType;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,12 +38,11 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     }
 
     @Override
-    public CommonPage<AssetTypeListDTO> list(BasePage basePage, Collection<Long> assetTypeIds) {
-        Page<AssetType> page = new Page<>(basePage.getPageNum(), basePage.getPageSize());
+    public CommonPage<AssetTypeListDTO> list(AssetTypeListReq req) {
+        Page<AssetType> page = new Page<>(req.getPageNum(), req.getPageSize());
         LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();
-        if (CollectionUtil.isNotEmpty(assetTypeIds)) {
-            query.in(AssetType::getId, assetTypeIds);
-        }
+        query.eq(StringUtils.isNotEmpty(req.getAssetType()), AssetType::getAssetType, req.getAssetType());
+        query.in(CollectionUtil.isNotEmpty(req.getAssetTypeIds()), AssetType::getId, req.getAssetTypeIds());
         query.orderByAsc(AssetType::getId);
         Page<AssetType> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetTypeConvert::toDTO);

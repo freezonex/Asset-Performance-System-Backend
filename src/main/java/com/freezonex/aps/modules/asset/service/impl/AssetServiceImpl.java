@@ -38,7 +38,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
         query.eq(StringUtils.isNotBlank(req.getAssetId()), Asset::getAssetId, req.getAssetId());
         query.eq(StringUtils.isNotBlank(req.getAssetName()), Asset::getAssetName, req.getAssetName());
-        query.eq(Objects.nonNull(req.getAssetType()), Asset::getAssetType, req.getAssetType());
+        query.eq(StringUtils.isNotBlank(req.getAssetType()), Asset::getAssetType, req.getAssetType());
         query.eq(StringUtils.isNotBlank(req.getResponsiblePerson()), Asset::getResponsiblePerson, req.getResponsiblePerson());
         Page<Asset> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetConvert::toDTO);
@@ -81,9 +81,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public List<AssetListDTO> queryByAssetTypeId(Long assetTypeId) {
+    public List<AssetListDTO> queryByAssetTypeId(Collection<Long> assetTypeId) {
         LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
-        query.eq( Asset::getAssetTypeId, assetTypeId);
+        query.in( Asset::getAssetTypeId, assetTypeId);
         List<Asset> list = this.list(query);
         return assetConvert.toDTOList(list);
     }
