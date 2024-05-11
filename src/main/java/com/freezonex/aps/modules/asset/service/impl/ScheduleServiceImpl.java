@@ -8,12 +8,14 @@ import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -56,13 +58,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         Table<String, LocalDate, Long> quantityMap = workOrderService.queryGroupByAssignedTo(assignedToList, startDate, endDate);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE,MMM d", Locale.ENGLISH);
         //查询日期
         List<Date> dateList = DateUtils.findDates(startDate, endDate);
         //获取表单的头部时间列表
-        List<Long> dates = new ArrayList<>();
+        List<String> dates = new ArrayList<>();
         dateList.forEach(date -> {
-            LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
-            dates.add(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            dates.add(sdf.format(date));
         });
         List<ScheduleFormDataDTO.DetailData> detailDataList = new ArrayList<>();
 
@@ -77,7 +79,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                     quantity = 0L;
                 }
                 ScheduleFormDataDTO.DateData dateData = new ScheduleFormDataDTO.DateData();
-                dateData.setDate(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+                dateData.setDate(sdf.format(date));
                 dateData.setColorType(getColorType(quantity));
                 dataList.add(dateData);
             }
@@ -100,4 +102,5 @@ public class ScheduleServiceImpl implements ScheduleService {
     private int getColorType(Long quantity) {
         return quantity >= 3 ? 3 : quantity.intValue();
     }
+
 }
