@@ -337,7 +337,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             if (inventoryDateMap.containsKey(localDate)) {
                 chartData.setExpectedQuantity(inventoryDateMap.get(localDate).getExpectedQuantity());
             }
-            chartData.setDate(localDate.format(DateTimeFormatter.ofPattern(pattern)));
+
+            chartData.setDate(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
             chartDataList.add(chartData);
             dateFormatList.add(sdf.format(date));
         }

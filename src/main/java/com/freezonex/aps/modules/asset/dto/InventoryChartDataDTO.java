@@ -22,6 +22,6 @@ public class InventoryChartDataDTO implements Serializable {
         private Integer quantity;
 
         private Integer expectedQuantity;
-        private String date;
+        private Long date;
     }
 }
