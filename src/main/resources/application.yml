@@ -27,4 +27,4 @@ mybatis-plus:
 
 asset:
   upload:
-    dir: /app/asset/attachments/
+    dir: /app/aps/attachments/
