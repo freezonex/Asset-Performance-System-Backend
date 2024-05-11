@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -78,6 +79,9 @@ public class AssetController {
             Asserts.fail("asset not found");
         }
         if (StringUtils.isBlank(asset.getAttachmentDir())) {
+            Asserts.fail("asset attachment not found");
+        }
+        if (!new File(asset.getAttachmentDir()).exists()) {
             Asserts.fail("asset attachment not found");
         }
         response.reset();
