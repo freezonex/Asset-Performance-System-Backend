@@ -22,10 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -58,12 +55,20 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public Boolean create(AssetCreateReq req) {
+        if (req.getUsedStatus() != null && req.getUsedStatus() == 1) {
+            req.setUsedDate(new Date());
+        }
         Asset asset = assetConvert.toAsset(req);
         return this.save(asset);
     }
 
     @Override
     public Boolean update(AssetUpdateReq req) {
+        Asset oldAsset = this.getById(req.getId());
+        if (req.getUsedStatus() != null && req.getUsedStatus() == 1 && (oldAsset.getUsedStatus() == null || oldAsset.getUsedStatus() == 0)) {
+            //如果未使用变成使用状态 则设置使用日期
+            req.setUsedDate(new Date());
+        }
         Asset asset = assetConvert.toAsset(req);
         LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();
         updateWrapper.eq(Asset::getId, req.getId());
@@ -96,7 +101,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public List<AssetListDTO> queryByAssetTypeId(Collection<Long> assetTypeId) {
         LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
-        query.in( Asset::getAssetTypeId, assetTypeId);
+        query.in(Asset::getAssetTypeId, assetTypeId);
         List<Asset> list = this.list(query);
         return assetConvert.toDTOList(list);
     }

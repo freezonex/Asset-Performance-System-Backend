@@ -32,6 +32,8 @@ public class AssetCreateReq {
     )
     private Integer usedStatus;
 
+    private Date usedDate;
+
     @ApiModelProperty(
             value = "1：Running 2：Maintaining 3：Halt 4：Scheduled Stop"
     )
