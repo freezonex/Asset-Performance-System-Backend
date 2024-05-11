@@ -1,17 +1,27 @@
 package com.freezonex.aps.modules.asset.controller;
 
 
+import cn.hutool.core.util.URLUtil;
 import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.common.api.CommonResult;
+import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.service.AssetService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * <p>
@@ -24,7 +34,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/asset")
 @Api(tags = "AssetController")
-@Tag(name = "AssetController",description = "asset")
+@Tag(name = "AssetController", description = "asset")
 public class AssetController {
 
     @Resource
@@ -52,6 +62,39 @@ public class AssetController {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public CommonResult<Boolean> delete(@RequestBody @Validated AssetDeleteReq req) {
         return CommonResult.success(assetService.delete(req));
+    }
+
+    @ApiOperation("asset attachments upload")
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public CommonResult<AssetAttachmentUploadDTO> upload(@RequestParam MultipartFile file) throws IOException {
+        return CommonResult.success(assetService.attachmentUpload(file));
+    }
+
+    @ApiOperation("asset attachments download")
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    public void download(HttpServletResponse response, @Validated AssetAttachmentDownloadReq req) throws Exception {
+        AssetListDTO asset = assetService.getAssetById(req.getId());
+        if (asset == null) {
+            Asserts.fail("asset not found");
+        }
+        if (StringUtils.isBlank(asset.getAttachmentDir())) {
+            Asserts.fail("asset attachment not found");
+        }
+        response.reset();
+        response.setContentType("application/octet-stream;charset=utf-8");
+        response.setHeader(
+                "Content-disposition",
+                "attachment; filename=" + URLUtil.encode(asset.getAttachmentName()));
+        try (
+                BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(asset.getAttachmentDir())));
+                BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())
+        ) {
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = bis.read(buff)) > 0) {
+                bos.write(buff, 0, len);
+            }
+        }
     }
 
 }

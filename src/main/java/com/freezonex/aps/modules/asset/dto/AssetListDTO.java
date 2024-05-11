@@ -58,6 +58,10 @@ public class AssetListDTO implements Serializable {
 
     private String documentation;
 
+    private String attachmentName;
+
+    private String attachmentDir;
+
     private Date gmtCreate;
 
 }

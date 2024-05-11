@@ -54,4 +54,8 @@ public class AssetCreateReq {
 
     private String documentation;
 
+    private String attachmentName;
+
+    private String attachmentDir;
+
 }

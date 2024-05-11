@@ -4,7 +4,9 @@ import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.model.Asset;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,4 +41,8 @@ public interface AssetService extends IService<Asset> {
     Map<Long,Long> queryGroupByAssetType(Collection<Long> assetTypeIds);
 
     List<AssetListDTO> queryByAssetTypeId(Collection<Long> assetTypeId);
+
+    AssetListDTO getAssetById(Long id);
+
+    AssetAttachmentUploadDTO attachmentUpload(MultipartFile file) throws IOException;
 }

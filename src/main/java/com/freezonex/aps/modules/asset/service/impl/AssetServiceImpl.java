@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -7,16 +8,24 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.convert.AssetConvert;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.AssetMapper;
 import com.freezonex.aps.modules.asset.model.Asset;
 import com.freezonex.aps.modules.asset.service.AssetService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,6 +40,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Resource
     private AssetConvert assetConvert;
+
+    @Value("${asset.upload.dir}")
+    private String uploadDir;
 
     @Override
     public CommonPage<AssetListDTO> list(AssetListReq req) {
@@ -87,6 +99,31 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         query.in( Asset::getAssetTypeId, assetTypeId);
         List<Asset> list = this.list(query);
         return assetConvert.toDTOList(list);
+    }
+
+    @Override
+    public AssetListDTO getAssetById(Long id) {
+        return assetConvert.toDTO(this.getById(id));
+    }
+
+    @Override
+    public AssetAttachmentUploadDTO attachmentUpload(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            Asserts.fail("file is empty");
+        }
+        File filePath = new File(uploadDir);
+        filePath.mkdirs();
+        String uuid = UUID.randomUUID().toString(true);
+        String fileExtension = org.springframework.util.StringUtils.getFilenameExtension(file.getOriginalFilename());
+        if (fileExtension != null) {
+            uuid = uuid + "." + fileExtension;
+        }
+        File fileObj = new File(uploadDir + uuid);
+        file.transferTo(fileObj);
+        AssetAttachmentUploadDTO assetAttachmentUploadDTO = new AssetAttachmentUploadDTO();
+        assetAttachmentUploadDTO.setAttachmentName(file.getOriginalFilename());
+        assetAttachmentUploadDTO.setAttachmentDir(fileObj.getAbsolutePath());
+        return assetAttachmentUploadDTO;
     }
 
 }

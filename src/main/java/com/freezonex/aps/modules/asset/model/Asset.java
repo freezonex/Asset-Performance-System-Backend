@@ -68,6 +68,10 @@ public class Asset implements Serializable {
 
     private String documentation;
 
+    private String attachmentName;
+
+    private String attachmentDir;
+
     private Date gmtCreate;
 
     private Date gmtModified;

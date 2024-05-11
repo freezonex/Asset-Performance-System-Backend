@@ -24,3 +24,7 @@ mybatis-plus:
   configuration:
     auto-mapping-behavior: partial
     map-underscore-to-camel-case: true
+
+asset:
+  upload:
+    dir: /app/asset/attachments/
