@@ -1,22 +1,19 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.modules.asset.Utils.DateUtils;
 import com.freezonex.aps.modules.asset.dto.*;
-import com.freezonex.aps.modules.asset.model.Inventory;
-import com.freezonex.aps.modules.asset.service.AssetService;
-import com.freezonex.aps.modules.asset.service.AssetTypeService;
-import com.freezonex.aps.modules.asset.service.InventoryService;
-import com.freezonex.aps.modules.asset.service.ScheduleService;
+import com.freezonex.aps.modules.asset.service.*;
+import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +29,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private AssetTypeService assetTypeService;
     @Resource
     private InventoryService inventoryService;
+    @Resource
+    private WorkOrderService workOrderService;
 
     @Override
     public ScheduleHeadDataDTO queryHeadData() {
@@ -46,73 +45,59 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleFormDataDTO queryFormData(ScheduleFormDataReq req) {
-        final String pattern = "MM-dd";
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date startDate = Date.from(req.getSelectDate().minusDays(4).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(req.getSelectDate().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        WorkOrderListReq workOrderListReq = new WorkOrderListReq();
+        workOrderListReq.setPageSize(req.getPageSize());
+        workOrderListReq.setPageNum(req.getPageNum());
+        CommonPage<WorkOrderListDTO> workOrderPage = workOrderService.groupList(workOrderListReq);
+        List<String> assignedToList = workOrderPage.getList().stream().map(WorkOrderListDTO::getAssignedTo).collect(Collectors.toList());
+
+        Table<String, LocalDate, Long> quantityMap = workOrderService.queryGroupByAssignedTo(assignedToList, startDate, endDate);
+
         //查询日期
-        List<Date> dates = DateUtils.findDates(startDate, endDate);
-
-        AssetTypeListReq assetTypeListReq = new AssetTypeListReq();
-        assetTypeListReq.setPageNum(req.getPageNum());
-        assetTypeListReq.setPageSize(req.getPageSize());
-        CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(assetTypeListReq);
-
-        Map<Long, AssetTypeListDTO> assetTypeMap = assetTypePage.getList().stream().collect(Collectors.toMap(AssetTypeListDTO::getId, v -> v));
-        Set<Long> assetTypeIds = assetTypeMap.keySet();
-
-        LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
-        query.in(Inventory::getAssetTypeId, assetTypeIds);
-        query.orderByAsc(Inventory::getAssetTypeId, Inventory::getExpectedDate);
-        List<Inventory> inventoryAllList = inventoryService.list(query);
-        //查询 asset
-        List<AssetListDTO> assetAllList = assetService.queryByAssetTypeId(assetTypeIds);
-
-        Map<Long, List<Inventory>> inventoryListMap = inventoryAllList.stream().collect(Collectors.groupingBy(Inventory::getAssetTypeId));
-
-        Map<Long, List<AssetListDTO>> assetListMap = assetAllList.stream().collect(Collectors.groupingBy(AssetListDTO::getAssetTypeId));
-
+        List<Date> dateList = DateUtils.findDates(startDate, endDate);
+        //获取表单的头部时间列表
+        List<Long> dates = new ArrayList<>();
+        dateList.forEach(date -> {
+            LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
+            dates.add(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        });
         List<ScheduleFormDataDTO.DetailData> detailDataList = new ArrayList<>();
-        assetTypeMap.forEach((assetTypeId, assetTypeListDTO) -> {
-            List<Inventory> inventoryList = inventoryListMap.get(assetTypeId);
-            List<AssetListDTO> assetList = assetListMap.get(assetTypeId);
-            //填充 inventory
-            List<Inventory> fillInventoryList = inventoryService.fillInventory(assetTypeId, inventoryList);
-            //计算每天的库存
-            Map<LocalDate, Integer> dateQuantityMap = inventoryService.calculateDateQuantity(assetList, dates);
-            //每日分组
-            Map<LocalDate, Inventory> inventoryDateMap = fillInventoryList.stream().collect(Collectors.toMap(v -> LocalDateTime.ofInstant(v.getExpectedDate().toInstant(), ZoneId.systemDefault()).toLocalDate(), v -> v));
 
+        for (String assignedTo : assignedToList) {
+            ScheduleFormDataDTO.DetailData detailData = new ScheduleFormDataDTO.DetailData();
+            detailData.setGroupName(assignedTo);
             List<ScheduleFormDataDTO.DateData> dataList = new ArrayList<>();
-            for (Date date : dates) {
+            for (Date date : dateList) {
                 LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
-                Integer quantity = dateQuantityMap.getOrDefault(localDate, 0);
-                int expectedQuantity = 0;
-                if (inventoryDateMap.containsKey(localDate)) {
-                    expectedQuantity = inventoryDateMap.get(localDate).getExpectedQuantity();
+                Long quantity = quantityMap.get(assignedTo, localDate);
+                if (quantity == null) {
+                    quantity = 0L;
                 }
                 ScheduleFormDataDTO.DateData dateData = new ScheduleFormDataDTO.DateData();
-                dateData.setDate(sdf.format(date));
-                dateData.setColorType(quantity >= expectedQuantity ? 1 : 0);
+                dateData.setDate(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+                dateData.setColorType(getColorType(quantity));
                 dataList.add(dateData);
             }
-            ScheduleFormDataDTO.DetailData detailData = new ScheduleFormDataDTO.DetailData();
-            detailData.setAssetTypeId(assetTypeId);
-            detailData.setAssetType(assetTypeMap.get(assetTypeId).getAssetType());
             detailData.setDataList(dataList);
             detailDataList.add(detailData);
-        });
-
+        }
         CommonPage<ScheduleFormDataDTO.DetailData> detailDataPage = new CommonPage<>();
-        detailDataPage.setPageNum(assetTypePage.getPageNum());
-        detailDataPage.setPageSize(assetTypePage.getPageSize());
-        detailDataPage.setTotalPage(assetTypePage.getTotalPage());
-        detailDataPage.setTotal(assetTypePage.getTotal());
+        detailDataPage.setPageNum(workOrderPage.getPageNum());
+        detailDataPage.setPageSize(workOrderPage.getPageSize());
+        detailDataPage.setTotalPage(workOrderPage.getTotalPage());
+        detailDataPage.setTotal(workOrderPage.getTotal());
         detailDataPage.setList(detailDataList);
 
         ScheduleFormDataDTO scheduleFormDataDTO = new ScheduleFormDataDTO();
-        scheduleFormDataDTO.setDates(dates.stream().map(sdf::format).collect(Collectors.toList()));
+        scheduleFormDataDTO.setDates(dates);
         scheduleFormDataDTO.setPageData(detailDataPage);
         return scheduleFormDataDTO;
+    }
+
+    private int getColorType(Long quantity) {
+        return quantity >= 3 ? 3 : quantity.intValue();
     }
 }

@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,11 +12,16 @@ import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.WorkOrderMapper;
 import com.freezonex.aps.modules.asset.model.WorkOrder;
 import com.freezonex.aps.modules.asset.service.WorkOrderService;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * <p>
@@ -61,5 +67,33 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     @Override
     public Boolean delete(WorkOrderDeleteReq req) {
         return this.removeById(req.getId());
+    }
+
+    public CommonPage<WorkOrderListDTO> groupList(WorkOrderListReq req) {
+        Page<WorkOrder> page = new Page<>(req.getPageNum(), req.getPageSize());
+        LambdaQueryWrapper<WorkOrder> query = new LambdaQueryWrapper<>();
+        query.select(WorkOrder::getAssignedTo);
+        query.groupBy(WorkOrder::getAssignedTo);
+        Page<WorkOrder> workOrderPage = this.getBaseMapper().selectPage(page, query);
+        return CommonPage.restPage(workOrderPage, workOrderConvert::toDTO);
+    }
+
+    public Table<String, LocalDate, Long> queryGroupByAssignedTo(Collection<String> assignedToList, Date startDate, Date endDate) {
+        Table<String, LocalDate, Long> quantityMap = HashBasedTable.create();
+        QueryWrapper<WorkOrder> query = new QueryWrapper<>();
+        query.select("creation_time creationTime,assigned_to assignedTo", "count(id) quantity");
+        query.eq("deleted", 0);
+        query.in("assigned_to", assignedToList);
+        query.ge("creation_time", startDate);
+        query.le("creation_time", endDate);
+        query.groupBy("assigned_to,creation_time");
+        List<Map<String, Object>> maps = this.getBaseMapper().selectMaps(query);
+        for (Map<String, Object> map : maps) {
+            LocalDateTime creationTime = (LocalDateTime) map.get("creationTime");
+            String assignedTo = (String) map.get("assignedTo");
+            Long quantity = (Long) map.get("quantity");
+            quantityMap.put(assignedTo, creationTime.atZone(ZoneId.systemDefault()).toLocalDate(), quantity);
+        }
+        return quantityMap;
     }
 }

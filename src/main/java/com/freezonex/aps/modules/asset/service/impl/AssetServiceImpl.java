@@ -69,6 +69,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         QueryWrapper<Asset> query = new QueryWrapper<>();
         query.select("asset_type_id assetTypeId", "count(id) quantity");
         query.eq("used_status", 0);
+        query.eq("deleted", 0);
         query.in("asset_type_id", assetTypeIds);
         query.groupBy("asset_type_id");
         List<Map<String, Object>> maps = this.getBaseMapper().selectMaps(query);

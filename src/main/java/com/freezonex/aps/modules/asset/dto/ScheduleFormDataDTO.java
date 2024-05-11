@@ -13,16 +13,14 @@ import java.util.List;
 @Data
 public class ScheduleFormDataDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private List<String> dates;
+    private List<Long> dates;
 
     private CommonPage<DetailData> pageData;
 
     @Data
     public static class DetailData{
 
-        private Long assetTypeId;
-
-        private String assetType;
+        private String groupName;
 
         private List<ScheduleFormDataDTO.DateData> dataList;
     }
@@ -30,6 +28,6 @@ public class ScheduleFormDataDTO implements Serializable {
     @Data
     public static class DateData{
         private Integer colorType;
-        private String date;
+        private Long date;
     }
 }
