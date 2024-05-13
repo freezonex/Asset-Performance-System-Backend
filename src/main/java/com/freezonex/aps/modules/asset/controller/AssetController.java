@@ -56,7 +56,7 @@ public class AssetController {
     public String sendMqttMessage(@PathVariable String topic) {
         try {
             // 尝试发送消息到指定的主题
-            mqttSender.sendMessage(topic, "Hello MQTT");
+            mqttSender.sendMessage(topic, "Hello MQTT "+topic);
             return "Message sent!";
         } catch (Exception e) {
             // 捕获并处理发送消息过程中可能发生的任何异常
