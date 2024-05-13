@@ -24,7 +24,7 @@ public class InventoryListDTO implements Serializable {
 
     private String unit;
 
-    private Integer usageRate;
+    private String usageRate;
 
     private String supplierName;
 

@@ -17,6 +17,8 @@ import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -56,19 +58,27 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         //2.获取已有品类的记录数据预期时间距离今天最近一条数据
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.in(Inventory::getAssetTypeId, assetTypeIds);
-        query.orderByAsc(Inventory::getAssetTypeId, Inventory::getExpectedDate);
+        query.orderByAsc(Inventory::getAssetTypeId).orderByAsc(Inventory::getExpectedDate);
         List<Inventory> inventoryList = this.list(query);
         Map<Long, Inventory> map = getNearestInventory(inventoryList);
         //3.查询 asset type 的库存
-        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeIds);
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeIds,0);
+        Map<Long, Long> assetTypeAllQuantityMap = assetService.queryGroupByAssetType(assetTypeIds,null);
         //4.组装返回结果
         List<InventoryListDTO> resultList = Lists.newArrayList();
         for (AssetTypeListDTO assetTypeListDTO : assetTypePage.getList()) {
             Long assetTypeId = assetTypeListDTO.getId();
             if (map.containsKey(assetTypeId)) {
+                Long allQuantity = assetTypeAllQuantityMap.getOrDefault(assetTypeId, 0L);
+                int quantity = assetTypeQuantityMap.getOrDefault(assetTypeId, 0L).intValue();
                 Inventory inventory = map.get(assetTypeId);
-                inventory.setQuantity(assetTypeQuantityMap.getOrDefault(assetTypeId, 0L).intValue());
-                resultList.add(inventoryConvert.toDTO(map.get(assetTypeId)));
+                inventory.setQuantity(quantity);
+                InventoryListDTO inventoryListDTO = inventoryConvert.toDTO(map.get(assetTypeId));
+                if (!allQuantity.equals(0L)) {
+                    //计算使用率  （总库存-未使用的库存）/总库存
+                    inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).divide(new BigDecimal(allQuantity), 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).toPlainString() + "%");
+                }
+                resultList.add(inventoryListDTO);
             } else {
                 //初始化一条数据
                 resultList.add(inventoryConvert.toDTO(initInventory(assetTypeListDTO)));
@@ -161,7 +171,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         List<AssetTypeListDTO> assetTypeAllList = assetTypeService.allList();
         Map<Long, AssetTypeListDTO> assetTypeMap = assetTypeAllList.stream().collect(Collectors.toMap(AssetTypeListDTO::getId, v -> v));
         //查询 asset type 的库存
-        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet());
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet(), 0);
 
         //查询所有 inventory
         List<Inventory> list = this.list();
@@ -290,7 +300,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     public CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req) {
         CommonPage<SafetyLevelAssetTypeListDTO> assetTypePage = this.safetyLevelAssetTypeList(req);
         Map<Long, SafetyLevelAssetTypeListDTO> assetTypeMap = assetTypePage.getList().stream().collect(Collectors.toMap(SafetyLevelAssetTypeListDTO::getId, v -> v));
-        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet());
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet(),0);
         List<SafetyLevelAssetTypeQuantityListDTO> records = new ArrayList<>();
         assetTypeMap.forEach((k, v) -> {
             Long quantity = assetTypeQuantityMap.getOrDefault(k, 0L);
@@ -313,7 +323,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         //查询 inventory
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.in(Inventory::getAssetTypeId, assetTypeId);
-        query.orderByAsc(Inventory::getAssetTypeId, Inventory::getExpectedDate);
+        query.orderByAsc(Inventory::getAssetTypeId).orderByAsc(Inventory::getExpectedDate);
         List<Inventory> inventoryList = this.list(query);
         //查询 asset
         List<AssetListDTO> assetList = assetService.queryByAssetTypeId(Lists.newArrayList(assetTypeId));

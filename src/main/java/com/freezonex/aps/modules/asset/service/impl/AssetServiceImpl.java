@@ -81,11 +81,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
-    public Map<Long, Long> queryGroupByAssetType(Collection<Long> assetTypeIds) {
+    public Map<Long, Long> queryGroupByAssetType(Collection<Long> assetTypeIds, Integer usedStatus) {
         Map<Long, Long> assetTypeQuantityMap = new HashMap<>();
         QueryWrapper<Asset> query = new QueryWrapper<>();
         query.select("asset_type_id assetTypeId", "count(id) quantity");
-        query.eq("used_status", 0);
+        if (usedStatus != null) {
+            query.eq("used_status", usedStatus);
+        }
         query.eq("deleted", 0);
         query.in("asset_type_id", assetTypeIds);
         query.groupBy("asset_type_id");

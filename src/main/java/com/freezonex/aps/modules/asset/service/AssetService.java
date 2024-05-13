@@ -38,7 +38,7 @@ public interface AssetService extends IService<Asset> {
 
     Boolean delete(AssetDeleteReq req);
 
-    Map<Long,Long> queryGroupByAssetType(Collection<Long> assetTypeIds);
+    Map<Long,Long> queryGroupByAssetType(Collection<Long> assetTypeIds, Integer usedStatus);
 
     List<AssetListDTO> queryByAssetTypeId(Collection<Long> assetTypeId);
 
