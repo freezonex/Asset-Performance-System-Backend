@@ -12,10 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +30,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private InventoryService inventoryService;
     @Resource
     private WorkOrderService workOrderService;
+    @Resource
+    private DepartmentService departmentService;
 
     @Override
     public ScheduleHeadDataDTO queryHeadData() {
@@ -54,9 +53,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         workOrderListReq.setPageSize(req.getPageSize());
         workOrderListReq.setPageNum(req.getPageNum());
         CommonPage<WorkOrderListDTO> workOrderPage = workOrderService.groupList(workOrderListReq);
-        List<String> assignedToList = workOrderPage.getList().stream().map(WorkOrderListDTO::getAssignedTo).collect(Collectors.toList());
+        List<Long> assignedToList = workOrderPage.getList().stream().map(WorkOrderListDTO::getAssignedTo).collect(Collectors.toList());
 
-        Table<String, LocalDate, Long> quantityMap = workOrderService.queryGroupByAssignedTo(assignedToList, startDate, endDate);
+        Table<Long, LocalDate, Long> quantityMap = workOrderService.queryGroupByAssignedTo(assignedToList, startDate, endDate);
+
+        Map<Long, String> departmentMap = departmentService.allList().stream().collect(Collectors.toMap(DepartmentListDTO::getId,DepartmentListDTO::getDepartmentName));
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEE,MMM d", Locale.ENGLISH);
         //查询日期
@@ -68,9 +69,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         });
         List<ScheduleFormDataDTO.DetailData> detailDataList = new ArrayList<>();
 
-        for (String assignedTo : assignedToList) {
+        for (Long assignedTo : assignedToList) {
             ScheduleFormDataDTO.DetailData detailData = new ScheduleFormDataDTO.DetailData();
-            detailData.setGroupName(assignedTo);
+            detailData.setGroupName(departmentMap.get(assignedTo));
             List<ScheduleFormDataDTO.DateData> dataList = new ArrayList<>();
             for (Date date : dateList) {
                 LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();

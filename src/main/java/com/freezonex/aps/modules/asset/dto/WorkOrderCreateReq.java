@@ -35,7 +35,7 @@ public class WorkOrderCreateReq {
     )
     private Integer status;
 
-    private String assignedTo;
+    private Long assignedTo;
 
     private String createdBy;
 

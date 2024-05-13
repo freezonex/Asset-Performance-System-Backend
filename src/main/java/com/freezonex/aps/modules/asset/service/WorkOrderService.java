@@ -30,6 +30,6 @@ public interface WorkOrderService extends IService<WorkOrder> {
 
     CommonPage<WorkOrderListDTO> groupList(WorkOrderListReq req);
 
-    Table<String, LocalDate, Long> queryGroupByAssignedTo(Collection<String> assignedToList, Date startDate, Date endDate);
+    Table<Long, LocalDate, Long> queryGroupByAssignedTo(Collection<Long> assignedToList, Date startDate, Date endDate);
 
 }

@@ -52,12 +52,14 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
 
     @Override
     public Boolean create(WorkOrderCreateReq req) {
+        req.setCreatedBy("admin");
         WorkOrder workOrder = workOrderConvert.toWorkOrder(req);
         return this.save(workOrder);
     }
 
     @Override
     public Boolean update(WorkOrderUpdateReq req) {
+        req.setCreatedBy("admin");
         WorkOrder workOrder = workOrderConvert.toWorkOrder(req);
         LambdaUpdateWrapper<WorkOrder> updateWrapper = new UpdateWrapper<WorkOrder>().lambda();
         updateWrapper.eq(WorkOrder::getId, req.getId());
@@ -78,8 +80,8 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
         return CommonPage.restPage(workOrderPage, workOrderConvert::toDTO);
     }
 
-    public Table<String, LocalDate, Long> queryGroupByAssignedTo(Collection<String> assignedToList, Date startDate, Date endDate) {
-        Table<String, LocalDate, Long> quantityMap = HashBasedTable.create();
+    public Table<Long, LocalDate, Long> queryGroupByAssignedTo(Collection<Long> assignedToList, Date startDate, Date endDate) {
+        Table<Long, LocalDate, Long> quantityMap = HashBasedTable.create();
         QueryWrapper<WorkOrder> query = new QueryWrapper<>();
         query.select("creation_time creationTime,assigned_to assignedTo", "count(id) quantity");
         query.eq("deleted", 0);
@@ -90,7 +92,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
         List<Map<String, Object>> maps = this.getBaseMapper().selectMaps(query);
         for (Map<String, Object> map : maps) {
             LocalDateTime creationTime = (LocalDateTime) map.get("creationTime");
-            String assignedTo = (String) map.get("assignedTo");
+            Long assignedTo = (Long) map.get("assignedTo");
             Long quantity = (Long) map.get("quantity");
             quantityMap.put(assignedTo, creationTime.atZone(ZoneId.systemDefault()).toLocalDate(), quantity);
         }
