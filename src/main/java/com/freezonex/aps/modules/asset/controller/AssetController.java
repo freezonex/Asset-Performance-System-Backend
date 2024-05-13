@@ -7,10 +7,12 @@ import com.freezonex.aps.common.api.CommonResult;
 import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.service.AssetService;
+import com.freezonex.aps.modules.asset.service.MqttSender;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,27 @@ public class AssetController {
 
     @Resource
     private AssetService assetService;
+
+    @Autowired
+    private MqttSender mqttSender;
+
+    /**
+     * 发送MQTT消息的控制器方法。
+     *
+     * @param topic 通过URL路径变量传递，代表消息要发送到的主题。
+     * @return 根据消息发送结果返回不同的字符串信息。如果消息发送成功，返回"Message sent!"；如果发送失败，返回错误信息。
+     */
+    @RequestMapping(value = "/send/{topic}", method = RequestMethod.GET)
+    public String sendMqttMessage(@PathVariable String topic) {
+        try {
+            // 尝试发送消息到指定的主题
+            mqttSender.sendMessage(topic, "Hello MQTT");
+            return "Message sent!";
+        } catch (Exception e) {
+            // 捕获并处理发送消息过程中可能发生的任何异常
+            return "Error Sending Message: " + e.getMessage();
+        }
+    }
 
     @ApiOperation("asset list")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
