@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.modules.asset.convert.AssetTypeConvert;
+import com.freezonex.aps.modules.asset.dto.AssetTypeCreateReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListReq;
 import com.freezonex.aps.modules.asset.mapper.AssetTypeMapper;
@@ -51,6 +52,12 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     @Override
     public AssetTypeListDTO getByAssetTypeId(Long assetTypeId) {
         return assetTypeConvert.toDTO(this.getById(assetTypeId));
+    }
+
+    @Override
+    public Boolean create(AssetTypeCreateReq req) {
+        AssetType assetType = assetTypeConvert.toAssetType(req);
+        return this.save(assetType);
     }
 
 }

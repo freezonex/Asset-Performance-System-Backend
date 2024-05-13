@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.convert;
 
+import com.freezonex.aps.modules.asset.dto.AssetTypeCreateReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
 import com.freezonex.aps.modules.asset.model.AssetType;
 import org.mapstruct.Mapper;
@@ -16,4 +17,5 @@ public interface AssetTypeConvert {
 
     List<AssetTypeListDTO> toDTOList(List<AssetType> assetTypeList);
 
+    AssetType toAssetType(AssetTypeCreateReq req);
 }

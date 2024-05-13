@@ -2,6 +2,7 @@ package com.freezonex.aps.modules.asset.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.modules.asset.dto.AssetTypeCreateReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListReq;
 import com.freezonex.aps.modules.asset.model.AssetType;
@@ -24,4 +25,5 @@ public interface AssetTypeService extends IService<AssetType> {
 
     AssetTypeListDTO getByAssetTypeId(Long assetTypeId);
 
+    Boolean create(AssetTypeCreateReq req);
 }

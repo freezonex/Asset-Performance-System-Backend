@@ -44,4 +44,5 @@ public interface InventoryService extends IService<Inventory> {
      */
     List<Inventory> fillInventory(Long assetTypeId, List<Inventory> list);
 
+    Boolean create(InventoryCreateReq req);
 }

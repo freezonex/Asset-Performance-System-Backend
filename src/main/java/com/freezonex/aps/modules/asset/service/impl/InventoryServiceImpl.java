@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.Utils.DateUtils;
 import com.freezonex.aps.modules.asset.convert.InventoryConvert;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.InventoryMapper;
+import com.freezonex.aps.modules.asset.model.AssetType;
 import com.freezonex.aps.modules.asset.model.Inventory;
 import com.freezonex.aps.modules.asset.service.AssetService;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
@@ -242,33 +244,21 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (list.size() == 1) {
             Instant instant = list.get(0).getExpectedDate().toInstant();
             LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
-            if (!localDate.equals(now)) {
-                //如果只有一条记录，并且和今天的日期不同
-                Inventory inventory = new Inventory();
-                inventory.setAssetTypeId(assetTypeId);
-                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                inventory.setExpectedQuantity(0);
-                list.add(inventory);
-            } else {
+            if (localDate.equals(now)) {
                 //如果只有一条记录并且正好等于今天的日期
                 return list;
             }
-        } else {
-            if (list.get(0).getExpectedDate().after(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
-                //如果第一条记录的 expected date 大于今天的日期
-                Inventory inventory = new Inventory();
-                inventory.setAssetTypeId(assetTypeId);
-                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                inventory.setExpectedQuantity(0);
-                list.add(inventory);
-            } else if (list.get(list.size() - 1).getExpectedDate().before(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
-                //如果最后一条记录的 expected date 小于今天的日期
-                Inventory inventory = new Inventory();
-                inventory.setAssetTypeId(assetTypeId);
-                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                inventory.setExpectedQuantity(0);
-                list.add(inventory);
-            }
+        }
+        Date firstDate = list.get(0).getExpectedDate();
+        Date lastDate = list.get(list.size() - 1).getExpectedDate();
+        Date today = Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        if (firstDate.after(today) || lastDate.before(today)) {
+            //如果第一条记录的 expected date 大于今天的日期 或者 如果最后一条记录的 expected date 小于今天的日期
+            Inventory inventory = new Inventory();
+            inventory.setAssetTypeId(assetTypeId);
+            inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            inventory.setExpectedQuantity(0);
+            list.add(inventory);
         }
         list.sort(Comparator.comparing(Inventory::getExpectedDate));
         for (int i = 1; i < list.size(); i++) {
@@ -287,6 +277,23 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             }
         }
         return result;
+    }
+
+    @Override
+    public Boolean create(InventoryCreateReq req) {
+        AssetType assetType = assetTypeService.getById(req.getAssetTypeId());
+        if (assetType == null) {
+            Asserts.fail("asset type not found");
+        }
+        Inventory inventory = new Inventory();
+        inventory.setAssetTypeId(assetType.getId());
+        inventory.setAssetType(assetType.getAssetType());
+        inventory.setUnit(assetType.getUnit());
+        inventory.setSupplierName(assetType.getSupplierName());
+        inventory.setExpectedQuantity(req.getExpectedQuantity());
+        inventory.setCreationTime(new Date());
+        inventory.setExpectedDate(Date.from(req.getExpectedDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        return this.save(inventory);
     }
 
     private List<Inventory> fillInventory(Inventory data1, Inventory data2) {

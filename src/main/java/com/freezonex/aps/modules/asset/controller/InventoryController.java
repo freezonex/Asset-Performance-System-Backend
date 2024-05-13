@@ -63,5 +63,11 @@ public class InventoryController {
         return CommonResult.success(inventoryService.queryChartData(req));
     }
 
+    @ApiOperation("Asset type expected create")
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public CommonResult<Boolean> create(@RequestBody @Validated InventoryCreateReq req) {
+        return CommonResult.success(inventoryService.create(req));
+    }
+
 }
 
