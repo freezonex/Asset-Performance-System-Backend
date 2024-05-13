@@ -62,8 +62,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         List<Inventory> inventoryList = this.list(query);
         Map<Long, Inventory> map = getNearestInventory(inventoryList);
         //3.查询 asset type 的库存
-        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeIds,0);
-        Map<Long, Long> assetTypeAllQuantityMap = assetService.queryGroupByAssetType(assetTypeIds,null);
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeIds, 0);
+        Map<Long, Long> assetTypeAllQuantityMap = assetService.queryGroupByAssetType(assetTypeIds, null);
         //4.组装返回结果
         List<InventoryListDTO> resultList = Lists.newArrayList();
         for (AssetTypeListDTO assetTypeListDTO : assetTypePage.getList()) {
@@ -253,6 +253,22 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 //如果只有一条记录并且正好等于今天的日期
                 return list;
             }
+        } else {
+            if (list.get(0).getExpectedDate().after(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
+                //如果第一条记录的 expected date 大于今天的日期
+                Inventory inventory = new Inventory();
+                inventory.setAssetTypeId(assetTypeId);
+                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                inventory.setExpectedQuantity(0);
+                list.add(inventory);
+            } else if (list.get(list.size() - 1).getExpectedDate().before(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
+                //如果最后一条记录的 expected date 小于今天的日期
+                Inventory inventory = new Inventory();
+                inventory.setAssetTypeId(assetTypeId);
+                inventory.setExpectedDate(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                inventory.setExpectedQuantity(0);
+                list.add(inventory);
+            }
         }
         list.sort(Comparator.comparing(Inventory::getExpectedDate));
         for (int i = 1; i < list.size(); i++) {
@@ -300,7 +316,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     public CommonPage<SafetyLevelAssetTypeQuantityListDTO> queryAssetTypeQuantity(InventorySafetyLevelAssetTypeReq req) {
         CommonPage<SafetyLevelAssetTypeListDTO> assetTypePage = this.safetyLevelAssetTypeList(req);
         Map<Long, SafetyLevelAssetTypeListDTO> assetTypeMap = assetTypePage.getList().stream().collect(Collectors.toMap(SafetyLevelAssetTypeListDTO::getId, v -> v));
-        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet(),0);
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeMap.keySet(), 0);
         List<SafetyLevelAssetTypeQuantityListDTO> records = new ArrayList<>();
         assetTypeMap.forEach((k, v) -> {
             Long quantity = assetTypeQuantityMap.getOrDefault(k, 0L);
@@ -374,7 +390,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         for (Date date : dates) {
             LocalDate localDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalDate();
             Integer num = dateQuantityMap.getOrDefault(localDate, 0);
-            if(CollectionUtil.isNotEmpty(assetList)){
+            if (CollectionUtil.isNotEmpty(assetList)) {
                 for (AssetListDTO asset : assetList) {
                     LocalDate createDate = LocalDateTime.ofInstant(asset.getGmtCreate().toInstant(), ZoneId.systemDefault()).toLocalDate();
                     if (localDate.isAfter(createDate)) {//如果资产创建日期再计算日期之前
