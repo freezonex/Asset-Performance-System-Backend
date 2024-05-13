@@ -59,6 +59,12 @@ public class AssetController {
         return CommonResult.success(assetService.update(req));
     }
 
+    @ApiOperation("asset used status update")
+    @RequestMapping(value = "/usedStatusUpdate", method = RequestMethod.POST)
+    public CommonResult<Boolean> usedStatusUpdate(@RequestBody @Validated AssetUsedStatusReq req) {
+        return CommonResult.success(assetService.usedStatusUpdate(req));
+    }
+
     @ApiOperation("asset delete")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public CommonResult<Boolean> delete(@RequestBody @Validated AssetDeleteReq req) {

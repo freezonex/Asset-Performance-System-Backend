@@ -131,4 +131,23 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return assetAttachmentUploadDTO;
     }
 
+    @Override
+    public Boolean usedStatusUpdate(AssetUsedStatusReq req) {
+        Asset asset = this.getById(req.getId());
+        if (asset == null) {
+            Asserts.fail("asset not found");
+        }
+        if (asset.getUsedStatus() != null && asset.getUsedStatus() == 1) {
+            //已经是使用状态 无需修改
+            return true;
+        } else {
+            asset.setUsedStatus(1);
+            asset.setUsedDate(new Date());
+        }
+        LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();
+        updateWrapper.eq(Asset::getId, req.getId());
+        updateWrapper.eq(Asset::getUsedStatus, 0);
+        return this.update(asset, updateWrapper);
+    }
+
 }

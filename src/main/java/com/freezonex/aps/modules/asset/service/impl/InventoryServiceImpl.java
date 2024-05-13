@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -53,17 +52,22 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         assetTypeListReq.setPageSize(req.getPageSize());
         assetTypeListReq.setAssetType(req.getAssetType());
         CommonPage<AssetTypeListDTO> assetTypePage = assetTypeService.list(assetTypeListReq);
+        List<Long> assetTypeIds = assetTypePage.getList().stream().map(AssetTypeListDTO::getId).collect(Collectors.toList());
         //2.获取已有品类的记录数据预期时间距离今天最近一条数据
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
-        query.in(Inventory::getAssetTypeId, assetTypePage.getList().stream().map(AssetTypeListDTO::getId).collect(Collectors.toList()));
+        query.in(Inventory::getAssetTypeId, assetTypeIds);
         query.orderByAsc(Inventory::getAssetTypeId, Inventory::getExpectedDate);
         List<Inventory> inventoryList = this.list(query);
         Map<Long, Inventory> map = getNearestInventory(inventoryList);
-        //3.组装返回结果
+        //3.查询 asset type 的库存
+        Map<Long, Long> assetTypeQuantityMap = assetService.queryGroupByAssetType(assetTypeIds);
+        //4.组装返回结果
         List<InventoryListDTO> resultList = Lists.newArrayList();
         for (AssetTypeListDTO assetTypeListDTO : assetTypePage.getList()) {
             Long assetTypeId = assetTypeListDTO.getId();
             if (map.containsKey(assetTypeId)) {
+                Inventory inventory = map.get(assetTypeId);
+                inventory.setQuantity(assetTypeQuantityMap.getOrDefault(assetTypeId, 0L).intValue());
                 resultList.add(inventoryConvert.toDTO(map.get(assetTypeId)));
             } else {
                 //初始化一条数据
