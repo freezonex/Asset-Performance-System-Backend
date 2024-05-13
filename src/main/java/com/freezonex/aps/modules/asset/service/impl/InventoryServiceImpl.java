@@ -76,7 +76,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 InventoryListDTO inventoryListDTO = inventoryConvert.toDTO(map.get(assetTypeId));
                 if (!allQuantity.equals(0L)) {
                     //计算使用率  （总库存-未使用的库存）/总库存
-                    inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).divide(new BigDecimal(allQuantity), 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).toPlainString() + "%");
+                    inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).toPlainString() + "%");
                 }
                 resultList.add(inventoryListDTO);
             } else {
