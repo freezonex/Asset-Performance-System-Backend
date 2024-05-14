@@ -179,26 +179,23 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         List<Inventory> list = this.list();
         //inventory 按照 asset type id 分组
         Map<Long, List<Inventory>> assetTypes = list.stream().collect(Collectors.groupingBy(Inventory::getAssetTypeId));
-        //计算 今天的 expected quantity
-        Map<Long, Integer> todayQuantityMap = new HashMap<>();
-        LocalDate now = LocalDate.now();
+        //计算 明天的 expected quantity
+        Map<Long, Integer> tomorrowQuantityMap = new HashMap<>();
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
         assetTypeAllList.forEach(assetType -> {
             List<Inventory> inventoryList = assetTypes.get(assetType.getId());
             List<Inventory> dataList = fillInventory(assetType.getId(), inventoryList);
             for (Inventory inventory : dataList) {
-                Date expectedDate = inventory.getExpectedDate();
-                Calendar instance = Calendar.getInstance();
-                instance.setTime(expectedDate);
-                LocalDate expectedLocalDate = LocalDate.of(instance.get(Calendar.YEAR), instance.get(Calendar.MONTH) + 1, instance.get(Calendar.DAY_OF_MONTH));
-                if (expectedLocalDate.isEqual(now)) {
-                    todayQuantityMap.put(assetType.getId(), inventory.getExpectedQuantity());
+                LocalDate expectedLocalDate = LocalDateTime.ofInstant(inventory.getExpectedDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
+                if (expectedLocalDate.isEqual(tomorrow)) {
+                    tomorrowQuantityMap.put(assetType.getId(), inventory.getExpectedQuantity());
                     break;
                 }
             }
         });
 
         for (AssetTypeListDTO dto : assetTypeAllList) {
-            Integer expectedQuantity = todayQuantityMap.get(dto.getId());
+            Integer expectedQuantity = tomorrowQuantityMap.getOrDefault(dto.getId(), 0);
             Long quantity = assetTypeQuantityMap.getOrDefault(dto.getId(), 0L);//默认库存0
             if (quantity >= expectedQuantity) {
                 //安全预期的 asset type

@@ -45,6 +45,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
         query.eq(StringUtils.isNotBlank(req.getOrderName()), WorkOrder::getOrderName, req.getOrderName());
         query.eq(StringUtils.isNotBlank(req.getOrderType()), WorkOrder::getOrderType, req.getOrderType());
         query.eq(Objects.nonNull(req.getCreationTime()), WorkOrder::getCreationTime, req.getCreationTime());
+        query.orderByDesc(WorkOrder::getId);
         Page<WorkOrder> workOrderPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(workOrderPage, workOrderConvert::toDTO);
 
