@@ -70,21 +70,22 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         List<InventoryListDTO> resultList = Lists.newArrayList();
         for (AssetTypeListDTO assetTypeListDTO : assetTypePage.getList()) {
             Long assetTypeId = assetTypeListDTO.getId();
+            Inventory inventory;
             if (map.containsKey(assetTypeId)) {
-                Long allQuantity = assetTypeAllQuantityMap.getOrDefault(assetTypeId, 0L);
-                int quantity = assetTypeQuantityMap.getOrDefault(assetTypeId, 0L).intValue();
-                Inventory inventory = map.get(assetTypeId);
-                inventory.setQuantity(quantity);
-                InventoryListDTO inventoryListDTO = inventoryConvert.toDTO(map.get(assetTypeId));
-                if (!allQuantity.equals(0L)) {
-                    //计算使用率  （总库存-未使用的库存）/总库存
-                    inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).toPlainString() + "%");
-                }
-                resultList.add(inventoryListDTO);
+                inventory = map.get(assetTypeId);
             } else {
                 //初始化一条数据
-                resultList.add(inventoryConvert.toDTO(initInventory(assetTypeListDTO)));
+                inventory = initInventory(assetTypeListDTO);
             }
+            Long allQuantity = assetTypeAllQuantityMap.getOrDefault(assetTypeId, 0L);
+            int quantity = assetTypeQuantityMap.getOrDefault(assetTypeId, 0L).intValue();
+            inventory.setQuantity(quantity);
+            InventoryListDTO inventoryListDTO = inventoryConvert.toDTO(inventory);
+            if (!allQuantity.equals(0L)) {
+                //计算使用率  （总库存-未使用的库存）/总库存
+                inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).toPlainString() + "%");
+            }
+            resultList.add(inventoryListDTO);
         }
         CommonPage<InventoryListDTO> inventoryPage = new CommonPage<>();
         inventoryPage.setPageNum(assetTypePage.getPageNum());
