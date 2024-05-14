@@ -283,7 +283,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (assetType == null) {
             Asserts.fail("asset type not found");
         }
-        Inventory inventory = new Inventory();
+        Inventory inventory = getInventory(req.getAssetTypeId(), req.getExpectedDate());
+        if (inventory != null) {
+            Asserts.fail("expected date a record already exists");
+        }
+        inventory = new Inventory();
         inventory.setAssetTypeId(assetType.getId());
         inventory.setAssetType(assetType.getAssetType());
         inventory.setUnit(assetType.getUnit());
@@ -410,6 +414,13 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             dateQuantityMap.put(localDate, num);
         }
         return dateQuantityMap;
+    }
+
+    private Inventory getInventory(Long assetTypeId, LocalDate expectedDate) {
+        LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
+        query.eq(Inventory::getAssetTypeId, assetTypeId);
+        query.eq(Inventory::getExpectedDate, expectedDate);
+        return this.getOne(query);
     }
 
 }
