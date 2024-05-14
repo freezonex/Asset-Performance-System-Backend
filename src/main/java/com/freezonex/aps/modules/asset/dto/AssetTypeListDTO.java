@@ -22,4 +22,6 @@ public class AssetTypeListDTO implements Serializable {
 
     private String icon;
 
+    private Integer priceValue;
+
 }

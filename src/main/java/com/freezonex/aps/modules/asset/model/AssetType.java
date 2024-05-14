@@ -41,6 +41,8 @@ public class AssetType implements Serializable {
 
     private String icon;
 
+    private Integer priceValue;
+
     private Date gmtCreate;
 
     private Date gmtModified;

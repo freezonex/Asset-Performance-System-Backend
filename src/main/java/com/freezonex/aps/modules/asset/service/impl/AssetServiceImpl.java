@@ -14,6 +14,7 @@ import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.AssetMapper;
 import com.freezonex.aps.modules.asset.model.Asset;
 import com.freezonex.aps.modules.asset.service.AssetService;
+import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private AssetConvert assetConvert;
 
+    @Resource
+    private AssetTypeService assetTypeService;
+
     @Value("${asset.upload.dir}")
     private String uploadDir;
 
@@ -55,6 +59,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public Boolean create(AssetCreateReq req) {
+        AssetTypeListDTO assetTypeDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
+        if (assetTypeDTO == null) {
+            Asserts.fail("asset type not found");
+        }
+        req.setAssetType(assetTypeDTO.getAssetType());
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1) {
             req.setUsedDate(new Date());
         }
@@ -64,6 +73,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Override
     public Boolean update(AssetUpdateReq req) {
+        AssetTypeListDTO assetTypeDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
+        if (assetTypeDTO == null) {
+            Asserts.fail("asset type not found");
+        }
         Asset oldAsset = this.getById(req.getId());
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1 && (oldAsset.getUsedStatus() == null || oldAsset.getUsedStatus() == 0)) {
             //如果未使用变成使用状态 则设置使用日期
