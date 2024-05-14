@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,24 +84,26 @@ public class DashboardServiceImpl implements DashboardService {
 
     /**
      * select  e.* from (select 1 as type, gmt_create
-     *                 from asset
-     *                 union all
-     *                 select 2 as type, gmt_create
-     *                 from inventory
-     *                 union all
-     *                 select 3 as type, gmt_create
-     *                 from work_order) e order by e.gmt_create desc limit 4
+     *                     from asset where deleted = 0
+     *                     union all
+     *                     select 2 as type, gmt_create
+     *                     from inventory where deleted = 0
+     *                     union all
+     *                     select 3 as type, gmt_create
+     *                     from work_order where deleted = 0) e  where  e.gmt_create >= '2024-05-10' and e.gmt_create <'2024-05-16' order by e.gmt_create desc limit 4
      */
-    public List<EventListDTO> eventList() {
+    public List<EventListDTO> eventList(EventListReq req) {
+        //req.getEndDate() 加1天 使用 < 比较
+        LocalDate endDate = req.getEndDate().plusDays(1);
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy | hh:mm a", Locale.ENGLISH);
         List<EventListDTO> list = jdbcTemplate.query("select  e.* from (select 1 as type, gmt_create\n" +
-                "                from asset\n" +
-                "                union all\n" +
-                "                select 2 as type, gmt_create\n" +
-                "                from inventory\n" +
-                "                union all\n" +
-                "                select 3 as type, gmt_create\n" +
-                "                from work_order) e order by e.gmt_create desc limit 4", (rs, rowNum) -> {
+                "                    from asset where deleted = 0\n" +
+                "                    union all\n" +
+                "                    select 2 as type, gmt_create\n" +
+                "                    from inventory where deleted = 0\n" +
+                "                    union all\n" +
+                "                    select 3 as type, gmt_create\n" +
+                "                    from work_order where deleted = 0) e  where  e.gmt_create >= '"+req.getStartDate()+"' and e.gmt_create <'"+endDate+"' order by e.gmt_create desc limit 4", (rs, rowNum) -> {
             EventListDTO eventListDTO = new EventListDTO();
             eventListDTO.setEventName(EventEnum.codeOf(rs.getInt("type")).getDesc());
             eventListDTO.setEventTime(sdf.format(rs.getTimestamp("gmt_create")));

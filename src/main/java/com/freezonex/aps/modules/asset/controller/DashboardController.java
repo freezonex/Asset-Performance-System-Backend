@@ -1,14 +1,13 @@
 package com.freezonex.aps.modules.asset.controller;
 
 import com.freezonex.aps.common.api.CommonResult;
-import com.freezonex.aps.modules.asset.dto.EventListDTO;
-import com.freezonex.aps.modules.asset.dto.TotalAssetDTO;
-import com.freezonex.aps.modules.asset.dto.TotalWorkOrderDTO;
-import com.freezonex.aps.modules.asset.dto.WorkOrderListDTO;
+import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.service.DashboardService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,8 +48,8 @@ public class DashboardController {
 
     @ApiOperation("event list")
     @RequestMapping(value = "/eventList", method = RequestMethod.POST)
-    public CommonResult<List<EventListDTO>> eventList() {
-        return CommonResult.success(dashboardService.eventList());
+    public CommonResult<List<EventListDTO>> eventList(@RequestBody @Validated EventListReq req) {
+        return CommonResult.success(dashboardService.eventList(req));
     }
 
 }

@@ -1,9 +1,6 @@
 package com.freezonex.aps.modules.asset.service;
 
-import com.freezonex.aps.modules.asset.dto.EventListDTO;
-import com.freezonex.aps.modules.asset.dto.TotalAssetDTO;
-import com.freezonex.aps.modules.asset.dto.TotalWorkOrderDTO;
-import com.freezonex.aps.modules.asset.dto.WorkOrderListDTO;
+import com.freezonex.aps.modules.asset.dto.*;
 
 import java.util.List;
 
@@ -14,5 +11,5 @@ public interface DashboardService {
 
     List<WorkOrderListDTO> workOrdersQueue();
 
-    List<EventListDTO> eventList();
+    List<EventListDTO> eventList(EventListReq req);
 }
