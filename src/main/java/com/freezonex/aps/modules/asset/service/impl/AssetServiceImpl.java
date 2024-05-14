@@ -68,6 +68,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             req.setUsedDate(new Date());
         }
         Asset asset = assetConvert.toAsset(req);
+        asset.setGmtCreate(new Date());//数据库时区不对 使用系统时间
         return this.save(asset);
     }
 

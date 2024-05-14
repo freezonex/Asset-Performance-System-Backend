@@ -55,6 +55,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     public Boolean create(WorkOrderCreateReq req) {
         req.setCreatedBy("admin");
         WorkOrder workOrder = workOrderConvert.toWorkOrder(req);
+        workOrder.setGmtCreate(new Date());
         return this.save(workOrder);
     }
 

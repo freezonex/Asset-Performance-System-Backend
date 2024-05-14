@@ -9,12 +9,12 @@ import com.freezonex.aps.modules.asset.service.AssetService;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import com.freezonex.aps.modules.asset.service.DashboardService;
 import com.freezonex.aps.modules.asset.service.WorkOrderService;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +32,9 @@ public class DashboardServiceImpl implements DashboardService {
     private WorkOrderService workOrderService;
     @Resource
     private WorkOrderConvert workOrderConvert;
+
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public TotalAssetDTO totalAsset() {
@@ -78,4 +81,31 @@ public class DashboardServiceImpl implements DashboardService {
         return workOrderConvert.toDTOList(list);
     }
 
+    /**
+     * select  e.* from (select 1 as type, gmt_create
+     *                 from asset
+     *                 union all
+     *                 select 2 as type, gmt_create
+     *                 from inventory
+     *                 union all
+     *                 select 3 as type, gmt_create
+     *                 from work_order) e order by e.gmt_create desc limit 4
+     */
+    public List<EventListDTO> eventList() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy | hh:mm a", Locale.ENGLISH);
+        List<EventListDTO> list = jdbcTemplate.query("select  e.* from (select 1 as type, gmt_create\n" +
+                "                from asset\n" +
+                "                union all\n" +
+                "                select 2 as type, gmt_create\n" +
+                "                from inventory\n" +
+                "                union all\n" +
+                "                select 3 as type, gmt_create\n" +
+                "                from work_order) e order by e.gmt_create desc limit 4", (rs, rowNum) -> {
+            EventListDTO eventListDTO = new EventListDTO();
+            eventListDTO.setEventName(EventEnum.codeOf(rs.getInt("type")).getDesc());
+            eventListDTO.setEventTime(sdf.format(rs.getTimestamp("gmt_create")));
+            return eventListDTO;
+        });
+        return list;
+    }
 }

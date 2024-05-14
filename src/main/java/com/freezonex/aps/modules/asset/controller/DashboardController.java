@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.controller;
 
 import com.freezonex.aps.common.api.CommonResult;
+import com.freezonex.aps.modules.asset.dto.EventListDTO;
 import com.freezonex.aps.modules.asset.dto.TotalAssetDTO;
 import com.freezonex.aps.modules.asset.dto.TotalWorkOrderDTO;
 import com.freezonex.aps.modules.asset.dto.WorkOrderListDTO;
@@ -44,6 +45,12 @@ public class DashboardController {
     @RequestMapping(value = "/workOrdersQueue", method = RequestMethod.POST)
     public CommonResult<List<WorkOrderListDTO>> workOrdersQueue() {
         return CommonResult.success(dashboardService.workOrdersQueue());
+    }
+
+    @ApiOperation("event list")
+    @RequestMapping(value = "/eventList", method = RequestMethod.POST)
+    public CommonResult<List<EventListDTO>> eventList() {
+        return CommonResult.success(dashboardService.eventList());
     }
 
 }

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +58,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     @Override
     public Boolean create(AssetTypeCreateReq req) {
         AssetType assetType = assetTypeConvert.toAssetType(req);
+        assetType.setGmtCreate(new Date());//数据库时区不对 使用系统时间
         return this.save(assetType);
     }
 

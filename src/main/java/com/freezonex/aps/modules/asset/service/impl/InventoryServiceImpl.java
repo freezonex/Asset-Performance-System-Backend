@@ -295,6 +295,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         inventory.setExpectedQuantity(req.getExpectedQuantity());
         inventory.setCreationTime(new Date());
         inventory.setExpectedDate(Date.from(req.getExpectedDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        inventory.setGmtCreate(new Date());
         return this.save(inventory);
     }
 
