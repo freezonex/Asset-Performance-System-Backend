@@ -41,6 +41,8 @@ public class AssetCreateReq {
     )
     private Integer status;
 
+    private Long departmentId;
+
     private String department;
 
     private String location;

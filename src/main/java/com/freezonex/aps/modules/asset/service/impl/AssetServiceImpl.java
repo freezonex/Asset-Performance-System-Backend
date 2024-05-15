@@ -13,8 +13,10 @@ import com.freezonex.aps.modules.asset.convert.AssetConvert;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.AssetMapper;
 import com.freezonex.aps.modules.asset.model.Asset;
+import com.freezonex.aps.modules.asset.model.Department;
 import com.freezonex.aps.modules.asset.service.AssetService;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
+import com.freezonex.aps.modules.asset.service.DepartmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private AssetTypeService assetTypeService;
 
+    @Resource
+    private DepartmentService departmentService;
+
     @Value("${asset.upload.dir}")
     private String uploadDir;
 
@@ -62,6 +67,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         AssetTypeListDTO assetTypeDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
         if (assetTypeDTO == null) {
             Asserts.fail("asset type not found");
+        }
+        if (req.getDepartmentId() != null) {
+            Department department = departmentService.getById(req.getDepartmentId());
+            if (department == null) {
+                Asserts.fail("Department not found");
+            }
+            req.setDepartment(department.getDepartmentName());
         }
         req.setAssetType(assetTypeDTO.getAssetType());
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1) {

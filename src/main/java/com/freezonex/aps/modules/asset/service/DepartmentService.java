@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.service;
 
+import com.freezonex.aps.modules.asset.dto.DepartmentCreateReq;
 import com.freezonex.aps.modules.asset.dto.DepartmentListDTO;
 import com.freezonex.aps.modules.asset.model.Department;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -17,4 +18,6 @@ import java.util.List;
 public interface DepartmentService extends IService<Department> {
 
     List<DepartmentListDTO> allList();
+
+    Boolean create(DepartmentCreateReq req);
 }

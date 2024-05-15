@@ -42,6 +42,8 @@ public class AssetListDTO implements Serializable {
     )
     private Integer status;
 
+    private Long departmentId;
+
     private String department;
 
     private String location;
