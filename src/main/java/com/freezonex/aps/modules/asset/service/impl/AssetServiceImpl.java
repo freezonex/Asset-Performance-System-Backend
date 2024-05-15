@@ -58,6 +58,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         query.eq(StringUtils.isNotBlank(req.getAssetName()), Asset::getAssetName, req.getAssetName());
         query.eq(StringUtils.isNotBlank(req.getAssetType()), Asset::getAssetType, req.getAssetType());
         query.eq(StringUtils.isNotBlank(req.getResponsiblePerson()), Asset::getResponsiblePerson, req.getResponsiblePerson());
+        query.orderByDesc(Asset::getId);
         Page<Asset> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetConvert::toDTO);
     }
@@ -74,6 +75,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 Asserts.fail("Department not found");
             }
             req.setDepartment(department.getDepartmentName());
+        }else{
+            req.setDepartment(null);
         }
         req.setAssetType(assetTypeDTO.getAssetType());
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1) {

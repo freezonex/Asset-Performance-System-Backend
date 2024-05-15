@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
+import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.convert.AssetTypeConvert;
 import com.freezonex.aps.modules.asset.dto.AssetTypeCreateReq;
 import com.freezonex.aps.modules.asset.dto.AssetTypeListDTO;
@@ -57,7 +58,15 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
 
     @Override
     public Boolean create(AssetTypeCreateReq req) {
-        AssetType assetType = assetTypeConvert.toAssetType(req);
+        String assetTypeName = StringUtils.trim(req.getAssetType());
+        LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();
+        query.eq(AssetType::getAssetType, assetTypeName);
+        AssetType assetType = this.getOne(query);
+        if (assetType != null) {
+            Asserts.fail("asset type already exists");
+        }
+        req.setAssetType(assetTypeName);
+        assetType = assetTypeConvert.toAssetType(req);
         assetType.setGmtCreate(new Date());//数据库时区不对 使用系统时间
         return this.save(assetType);
     }
