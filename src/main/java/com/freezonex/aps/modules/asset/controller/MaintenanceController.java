@@ -6,7 +6,9 @@ import com.freezonex.aps.common.api.CommonPage;
 import com.freezonex.aps.common.api.CommonResult;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.service.MaintenanceService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +34,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/maintenance")
+@Api(tags = "MaintenanceController")
+@Tag(name = "MaintenanceController",description = "maintenance")
 public class MaintenanceController {
 
     @Resource
