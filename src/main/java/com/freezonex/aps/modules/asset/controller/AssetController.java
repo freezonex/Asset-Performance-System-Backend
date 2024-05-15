@@ -113,7 +113,6 @@ public class AssetController {
         if (!new File(asset.getAttachmentDir()).exists()) {
             Asserts.fail("asset attachment not found");
         }
-        response.reset();
         response.setContentType("application/octet-stream;charset=utf-8");
         response.setHeader(
                 "Content-disposition",
