@@ -181,4 +181,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return this.update(asset, updateWrapper);
     }
 
+    @Override
+    public Long getUsedCount() {
+        LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
+        query.eq(Asset::getUsedStatus, 1);
+        return this.count(query);
+    }
+
 }

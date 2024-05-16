@@ -8,6 +8,8 @@ import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,12 +37,14 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleHeadDataDTO queryHeadData() {
-        //TODO
+        Long workRecords = workOrderService.count();
+        long totalAssets = assetService.count();
+        Long usedCount = assetService.getUsedCount();
         ScheduleHeadDataDTO scheduleHeadDataDTO = new ScheduleHeadDataDTO();
-        scheduleHeadDataDTO.setWorkRecords(0);
-        scheduleHeadDataDTO.setIssuesWorkRecords(0);
-        scheduleHeadDataDTO.setUsageRate(0);
-        scheduleHeadDataDTO.setTotalAssets(0);
+        scheduleHeadDataDTO.setWorkRecords(workRecords);
+        scheduleHeadDataDTO.setIssuesWorkRecords(new Random().nextInt(workRecords.intValue() / 2));
+        scheduleHeadDataDTO.setUsageRate(new BigDecimal(usedCount).multiply(new BigDecimal(100)).divide(new BigDecimal(totalAssets), 2, RoundingMode.HALF_UP).toPlainString() + "%");
+        scheduleHeadDataDTO.setTotalAssets(totalAssets);
         return scheduleHeadDataDTO;
     }
 
@@ -57,7 +61,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         Table<Long, LocalDate, Long> quantityMap = workOrderService.queryGroupByAssignedTo(assignedToList, startDate, endDate);
 
-        Map<Long, String> departmentMap = departmentService.allList().stream().collect(Collectors.toMap(DepartmentListDTO::getId,DepartmentListDTO::getDepartmentName));
+        Map<Long, String> departmentMap = departmentService.allList().stream().collect(Collectors.toMap(DepartmentListDTO::getId, DepartmentListDTO::getDepartmentName));
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEE,MMM d", Locale.ENGLISH);
         //查询日期

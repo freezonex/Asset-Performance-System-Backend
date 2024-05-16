@@ -8,15 +8,15 @@ import com.freezonex.aps.common.exception.Asserts;
 import com.freezonex.aps.modules.asset.convert.MaintenanceConvert;
 import com.freezonex.aps.modules.asset.dto.*;
 import com.freezonex.aps.modules.asset.mapper.MaintenanceMapper;
+import com.freezonex.aps.modules.asset.model.AssetType;
 import com.freezonex.aps.modules.asset.model.Maintenance;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import com.freezonex.aps.modules.asset.service.MaintenanceService;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,4 +90,55 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
         maintenance.setCompletedTime(new Date());
         return this.saveOrUpdate(maintenance);
     }
+
+    public ValueModelDataDTO valueModelData(ValueModelDataReq req) {
+        Long assetTypeId = req.getAssetTypeId();
+        AssetType assetType = assetTypeService.getById(assetTypeId);
+
+        //获取gmtCreate 的年份
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(assetType.getGmtCreate());
+        Integer year = calendar.get(Calendar.YEAR);
+        Integer value = assetType.getPriceValue();
+        long seed = assetTypeId + Long.valueOf(value) + req.getModelType();
+        int minValue = 1; // 设置最小值
+        int maxValue = value; // 设置最大值
+
+        Random rand = new Random(seed);
+        //随机一个x轴数量
+        int x = rand.nextInt(6) + 5;
+
+        int currentValue = maxValue;
+        List<Integer> values1 = new ArrayList<>();//存储逐渐下降的数据
+        List<Integer> values2 = new ArrayList<>();//存储随机数
+        List<Integer> dates = Lists.newArrayList(year);//第一年
+        for (int i = 0; i < x; i++) {
+            currentValue = Math.max(minValue, currentValue - (maxValue - minValue) / x); // 逐渐接近最小值
+            dates.add(++year);
+            values1.add(currentValue);
+            values2.add(rand.nextInt((maxValue - minValue) + 1) + minValue);
+        }
+        values2 = values2.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        ValueModelDataDTO.DetailData initData = new ValueModelDataDTO.DetailData();
+        initData.setDate(dates.get(0));
+        initData.setValue(assetType.getPriceValue());
+        List<ValueModelDataDTO.DetailData> dataList = Lists.newArrayList(initData);//第一年的value
+        for (int i = 0; i < values1.size(); i++) {
+            ValueModelDataDTO.DetailData detailData = new ValueModelDataDTO.DetailData();
+            if (i == values1.size() - 1) {
+                detailData.setValue(0); //最后一个数设置0
+            } else if (i == (x / 2) || i == (x / 4)) {//用随机数替换部分逐渐下降的数据，
+                detailData.setValue(values2.get(i));
+            } else {
+                detailData.setValue(values1.get(i));
+            }
+            detailData.setDate(dates.get(i + 1));
+            dataList.add(detailData);
+        }
+        ValueModelDataDTO valueModelDataDTO = new ValueModelDataDTO();
+        valueModelDataDTO.setDates(dates);
+        valueModelDataDTO.setDataList(dataList);
+        return valueModelDataDTO;
+    }
+
 }

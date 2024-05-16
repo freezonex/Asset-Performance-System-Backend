@@ -46,6 +46,9 @@ public class Asset implements Serializable {
 
     private String sn;
 
+    @ApiModelProperty(
+            value = "0: Not Used 1: Used"
+    )
     private Integer usedStatus;
 
     private Date usedDate;

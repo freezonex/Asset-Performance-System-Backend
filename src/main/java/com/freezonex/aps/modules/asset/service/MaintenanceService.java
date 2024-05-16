@@ -24,4 +24,7 @@ public interface MaintenanceService extends IService<Maintenance> {
     List<TopDataDTO> topData();
 
     Boolean completed(MaintenanceCompletedReq req);
+
+    ValueModelDataDTO valueModelData(ValueModelDataReq req);
+
 }

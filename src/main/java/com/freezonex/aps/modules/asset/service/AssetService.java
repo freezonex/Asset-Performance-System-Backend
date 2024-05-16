@@ -47,4 +47,7 @@ public interface AssetService extends IService<Asset> {
     AssetAttachmentUploadDTO attachmentUpload(MultipartFile file) throws IOException;
 
     Boolean usedStatusUpdate(AssetUsedStatusReq req);
+
+    Long getUsedCount();
+
 }

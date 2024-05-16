@@ -12,8 +12,8 @@ import java.io.Serializable;
 public class ScheduleHeadDataDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Integer workRecords;
+    private Long workRecords;
     private Integer issuesWorkRecords;
-    private Integer usageRate;
-    private Integer totalAssets;
+    private String usageRate;
+    private Long totalAssets;
 }

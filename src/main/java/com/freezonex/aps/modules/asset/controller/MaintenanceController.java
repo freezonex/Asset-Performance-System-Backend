@@ -47,9 +47,15 @@ public class MaintenanceController {
         return CommonResult.success(maintenanceService.topData());
     }
 
+    @ApiOperation("value model")
+    @RequestMapping(value = "/valueModelData", method = RequestMethod.POST)
+    public CommonResult<ValueModelDataDTO> valueModelData(@RequestBody @Validated ValueModelDataReq req) {
+        return CommonResult.success(maintenanceService.valueModelData(req));
+    }
+
     @ApiOperation("maintenance list")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public CommonResult<CommonPage<MaintenanceDTO>> list(@RequestBody MaintenanceListReq req) {
+    public CommonResult<CommonPage<MaintenanceDTO>> list(@RequestBody @Validated MaintenanceListReq req) {
         return CommonResult.success(maintenanceService.list(req));
     }
 
