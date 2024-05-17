@@ -13,6 +13,7 @@ import com.freezonex.aps.modules.asset.model.Maintenance;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import com.freezonex.aps.modules.asset.service.MaintenanceService;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,6 +41,7 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
         Page<Maintenance> page = new Page<>(req.getPageNum(), req.getPageSize());
         LambdaQueryWrapper<Maintenance> query = new LambdaQueryWrapper<>();
         query.eq(Maintenance::getAssetTypeId, req.getAssetTypeId());
+        query.like(StringUtils.isNotEmpty(req.getSearchContent()), Maintenance::getContent, req.getSearchContent());
         query.in(Maintenance::getStatus, req.getStatus());
         if (req.getStatus().equals(1)) {
             query.orderByAsc(Maintenance::getCompletedTime);

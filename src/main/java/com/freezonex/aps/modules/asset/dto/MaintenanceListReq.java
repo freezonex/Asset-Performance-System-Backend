@@ -19,4 +19,6 @@ public class MaintenanceListReq extends BasePage {
             value = "0：Planned 1：Completed"
     )
     private Integer status;
+
+    private String searchContent;
 }
