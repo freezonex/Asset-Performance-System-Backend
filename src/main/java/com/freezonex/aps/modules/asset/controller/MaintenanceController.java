@@ -33,7 +33,7 @@ import java.util.List;
  * @since 2024-05-15
  */
 @RestController
-@RequestMapping("/maintenance")
+@RequestMapping("/apsbackend/maintenance")
 @Api(tags = "MaintenanceController")
 @Tag(name = "MaintenanceController",description = "maintenance")
 public class MaintenanceController {

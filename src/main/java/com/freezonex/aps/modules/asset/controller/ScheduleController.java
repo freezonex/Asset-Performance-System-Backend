@@ -21,7 +21,7 @@ import javax.annotation.Resource;
  * @since 2024/05/10 15:36
  */
 @RestController
-@RequestMapping("/schedule")
+@RequestMapping("/apsbackend/schedule")
 @Api(tags = "ScheduleController")
 @Tag(name = "ScheduleController", description = "scheduler")
 public class ScheduleController {

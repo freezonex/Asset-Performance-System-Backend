@@ -26,7 +26,7 @@ import java.util.List;
  * @since 2024-05-07
  */
 @RestController
-@RequestMapping("/assetType")
+@RequestMapping("/apsbackend/assetType")
 @Api(tags = "AssetTypeController")
 @Tag(name = "AssetTypeController",description = "asset type")
 public class AssetTypeController {

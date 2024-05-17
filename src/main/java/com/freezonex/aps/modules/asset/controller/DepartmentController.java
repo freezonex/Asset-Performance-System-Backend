@@ -27,7 +27,7 @@ import java.util.List;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/department")
+@RequestMapping("/apsbackend/department")
 @Api(tags = "DepartmentController")
 @Tag(name = "DepartmentController",description = "department")
 public class DepartmentController {

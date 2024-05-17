@@ -25,7 +25,7 @@ import javax.annotation.Resource;
  * @since 2024-05-07
  */
 @RestController
-@RequestMapping("/inventory")
+@RequestMapping("/apsbackend/inventory")
 @Api(tags = "InventoryController")
 @Tag(name = "InventoryController",description = "asset inventory")
 public class InventoryController {

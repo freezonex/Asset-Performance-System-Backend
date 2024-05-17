@@ -20,7 +20,7 @@ import java.util.List;
  * @since 2024/05/14 10:18
  */
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/apsbackend/dashboard")
 @Api(tags = "DashboardController")
 @Tag(name = "DashboardController", description = "dashboard")
 public class DashboardController {

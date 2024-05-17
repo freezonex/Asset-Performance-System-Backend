@@ -25,7 +25,7 @@ import javax.annotation.Resource;
  * @since 2024-05-09
  */
 @RestController
-@RequestMapping("/workOrder")
+@RequestMapping("/apsbackend/workOrder")
 @Api(tags = "WorkOrderController")
 @Tag(name = "WorkOrderController",description = "work order")
 public class WorkOrderController {

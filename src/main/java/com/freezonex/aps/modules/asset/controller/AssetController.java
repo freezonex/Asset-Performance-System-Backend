@@ -35,7 +35,7 @@ import java.nio.file.Paths;
  * @since 2024-05-06
  */
 @RestController
-@RequestMapping("/asset")
+@RequestMapping("/apsbackend/asset")
 @Api(tags = "AssetController")
 @Tag(name = "AssetController", description = "asset")
 public class AssetController {
