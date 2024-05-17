@@ -84,6 +84,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             if (!allQuantity.equals(0L)) {
                 //计算使用率  （总库存-未使用的库存）/总库存
                 inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).toPlainString() + "%");
+            }else{
+                inventoryListDTO.setUsageRate("0%");
             }
             resultList.add(inventoryListDTO);
         }
