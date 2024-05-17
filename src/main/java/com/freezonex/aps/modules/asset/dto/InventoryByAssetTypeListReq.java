@@ -17,4 +17,8 @@ import javax.validation.constraints.NotNull;
 public class InventoryByAssetTypeListReq extends BasePage {
     @NotNull
     private Long assetTypeId;
+
+    private Long currentId;
+
+    private Boolean defaultPage;
 }

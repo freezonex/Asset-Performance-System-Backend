@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -27,7 +28,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -83,8 +83,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             InventoryListDTO inventoryListDTO = inventoryConvert.toDTO(inventory);
             if (!allQuantity.equals(0L)) {
                 //计算使用率  （总库存-未使用的库存）/总库存
-                inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).toPlainString() + "%");
-            }else{
+                inventoryListDTO.setUsageRate((new BigDecimal(allQuantity).subtract(new BigDecimal(quantity))).multiply(new BigDecimal(100)).divide(new BigDecimal(allQuantity), 2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() + "%");
+            } else {
                 inventoryListDTO.setUsageRate("0%");
             }
             resultList.add(inventoryListDTO);
@@ -139,12 +139,13 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
 
     @Override
     public CommonPage<InventoryDetailListDTO> queryByAssetTypeList(InventoryByAssetTypeListReq req) {
+        setPageNum(req);
         Page<Inventory> page = new Page<>(req.getPageNum(), req.getPageSize());
         LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
         query.eq(Inventory::getAssetTypeId, req.getAssetTypeId());
         query.orderByAsc(Inventory::getExpectedDate);
         Page<Inventory> assetPage = this.getBaseMapper().selectPage(page, query);
-        if (assetPage.getRecords().size() == 0) {
+        if (assetPage.getRecords().isEmpty()) {
             //初始化一条记录 保持和 列表页面一致
             AssetTypeListDTO assetTypeListDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
             if (assetTypeListDTO != null) {
@@ -153,20 +154,36 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         CommonPage<InventoryDetailListDTO> result = CommonPage.restPage(assetPage, inventoryConvert::toDetailDTO);
         Date today = new Date();
-        AtomicInteger num = new AtomicInteger();
         result.getList().forEach(v -> {
-            if (v.getExpectedDate().before(today)) {
+            if (v.getId().equals(req.getCurrentId())) {
+                v.setColorType(1);
+            } else if (v.getExpectedDate().before(today)) {
                 v.setColorType(0);
             } else {
-                if (num.get() > 0) {
-                    v.setColorType(2);
-                } else {
-                    v.setColorType(1);
-                }
-                num.getAndIncrement();
+                v.setColorType(2);
             }
         });
         return result;
+    }
+
+    private void setPageNum(InventoryByAssetTypeListReq req) {
+        if (BooleanUtil.isTrue(req.getDefaultPage()) && Objects.nonNull(req.getCurrentId())) {//需要获取定位到预期分页
+            LambdaQueryWrapper<Inventory> query = new LambdaQueryWrapper<>();
+            query.eq(Inventory::getAssetTypeId, req.getAssetTypeId());
+            query.orderByAsc(Inventory::getExpectedDate);
+            query.select(Inventory::getId);
+            List<Inventory> list = this.list(query);
+            //获取 list 中 对象id 等于 req 中的currentId 的下标
+            int index = list.stream().map(Inventory::getId).collect(Collectors.toList()).indexOf(req.getCurrentId());
+            if (index > -1) {
+                //如果找到 则重置当前页码
+                req.setPageNum(index / req.getPageSize() + 1);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(19 / 10);
     }
 
     @Override
