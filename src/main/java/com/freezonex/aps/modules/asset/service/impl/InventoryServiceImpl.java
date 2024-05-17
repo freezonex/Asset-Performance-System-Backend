@@ -249,6 +249,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 return list;
             }
         }
+        list.sort(Comparator.comparing(Inventory::getExpectedDate));
         Date firstDate = list.get(0).getExpectedDate();
         Date lastDate = list.get(list.size() - 1).getExpectedDate();
         Date today = Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant());
