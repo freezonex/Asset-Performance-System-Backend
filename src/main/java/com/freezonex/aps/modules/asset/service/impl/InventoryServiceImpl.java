@@ -18,6 +18,7 @@ import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import com.freezonex.aps.modules.asset.service.InventoryService;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -182,10 +183,6 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(19 / 10);
-    }
-
     @Override
     public CommonPage<SafetyLevelAssetTypeListDTO> safetyLevelAssetTypeList(InventorySafetyLevelAssetTypeReq req) {
         List<AssetTypeListDTO> safetyLevelAssetType = Lists.newArrayList();
@@ -298,6 +295,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(InventoryCreateReq req) {
         AssetType assetType = assetTypeService.getById(req.getAssetTypeId());
         if (assetType == null) {

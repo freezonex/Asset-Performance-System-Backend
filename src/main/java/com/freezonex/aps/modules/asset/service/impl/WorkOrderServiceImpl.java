@@ -16,6 +16,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -52,6 +53,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(WorkOrderCreateReq req) {
         req.setCreatedBy("admin");
         WorkOrder workOrder = workOrderConvert.toWorkOrder(req);
@@ -60,6 +62,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean update(WorkOrderUpdateReq req) {
         req.setCreatedBy("admin");
         WorkOrder workOrder = workOrderConvert.toWorkOrder(req);
@@ -69,6 +72,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean delete(WorkOrderDeleteReq req) {
         return this.removeById(req.getId());
     }

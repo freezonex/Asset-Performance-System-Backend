@@ -15,6 +15,7 @@ import com.freezonex.aps.modules.asset.model.AssetType;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -57,6 +58,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(AssetTypeCreateReq req) {
         String assetTypeName = StringUtils.trim(req.getAssetType());
         LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();

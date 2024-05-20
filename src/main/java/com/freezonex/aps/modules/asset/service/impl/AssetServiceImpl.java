@@ -20,6 +20,7 @@ import com.freezonex.aps.modules.asset.service.DepartmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -64,6 +65,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(AssetCreateReq req) {
         AssetTypeListDTO assetTypeDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
         if (assetTypeDTO == null) {
@@ -88,6 +90,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean update(AssetUpdateReq req) {
         AssetTypeListDTO assetTypeDTO = assetTypeService.getByAssetTypeId(req.getAssetTypeId());
         if (assetTypeDTO == null) {
@@ -105,6 +108,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean delete(AssetDeleteReq req) {
         return this.removeById(req.getId());
     }
@@ -163,6 +167,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean usedStatusUpdate(AssetUsedStatusReq req) {
         Asset asset = this.getById(req.getId());
         if (asset == null) {

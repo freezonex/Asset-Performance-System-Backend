@@ -15,6 +15,7 @@ import com.freezonex.aps.modules.asset.service.MaintenanceService;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -53,6 +54,7 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(MaintenanceCreateReq req) {
         Maintenance maintenance = new Maintenance();
         maintenance.setAssetTypeId(req.getAssetTypeId());
@@ -80,6 +82,7 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean completed(MaintenanceCompletedReq req) {
         Maintenance maintenance = this.getById(req.getId());
         if (maintenance == null) {

@@ -11,6 +11,7 @@ import com.freezonex.aps.modules.asset.model.Department;
 import com.freezonex.aps.modules.asset.service.DepartmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -37,6 +38,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(DepartmentCreateReq req) {
         String departmentName = StringUtils.trim(req.getDepartmentName());
         LambdaQueryWrapper<Department> query = new LambdaQueryWrapper<>();
