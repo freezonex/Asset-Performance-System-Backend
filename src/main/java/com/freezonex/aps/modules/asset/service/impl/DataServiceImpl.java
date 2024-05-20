@@ -183,7 +183,7 @@ public class DataServiceImpl implements DataService {
                 inventory.setAssetType(assetType.getAssetType());
                 inventory.setUnit(assetType.getUnit());
                 inventory.setSupplierName(assetType.getSupplierName());
-                inventory.setExpectedQuantity(new Random().nextInt(30) + 20);
+                inventory.setExpectedQuantity(new Random().nextInt(30) + 35);
                 inventory.setCreationTime(now);
                 inventory.setExpectedDate(now);
                 inventory.setGmtCreate(now);
