@@ -183,7 +183,7 @@ public class DataServiceImpl implements DataService {
                 inventory.setAssetType(assetType.getAssetType());
                 inventory.setUnit(assetType.getUnit());
                 inventory.setSupplierName(assetType.getSupplierName());
-                inventory.setExpectedQuantity(new Random().nextInt(20) + 10);
+                inventory.setExpectedQuantity(new Random().nextInt(30) + 20);
                 inventory.setCreationTime(now);
                 inventory.setExpectedDate(now);
                 inventory.setGmtCreate(now);
@@ -238,7 +238,9 @@ public class DataServiceImpl implements DataService {
                     asset.setGmtCreate(now);
                     asset.setGmtModified(now);
                     asset.setDeleted(0);
-                    assets.add(asset);
+                    if(new Random().nextInt(3)==1){
+                        assets.add(asset);
+                    }
                 }
             }
         }
