@@ -19,9 +19,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -75,13 +73,13 @@ public class MaintenanceController {
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public void download(HttpServletResponse response, @Validated MaintenanceDownloadReq req) throws Exception {
         String fileName = MaintenanceDownloadEnum.codeOf(req.getType()).getDesc();
-        URI uri = this.getClass().getClassLoader().getResource("files/" + fileName).toURI();
+        InputStream inputStream = MaintenanceController.class.getResourceAsStream("/files/" + fileName);
         response.setContentType("application/octet-stream;charset=utf-8");
         response.setHeader(
                 "Content-disposition",
                 "attachment; filename=" + URLUtil.encode(fileName));
         try (
-                BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(uri)));
+                BufferedInputStream bis = new BufferedInputStream(inputStream);
                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())
         ) {
             byte[] buff = new byte[1024];
