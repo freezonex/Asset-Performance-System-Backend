@@ -112,7 +112,7 @@ public class DataServiceImpl implements DataService {
     private void initMaintenance() {
         // 定义一个包含20个维护日志描述的字符串数组
         String[] maintenanceLogs = {
-                "Replace Filter Cartridge","Change/Replace Lubricant","Check/Inspection","Clean/Cleaning","Lubricate","Tighten/Secure","Calibrate","Debug/Adjust","Preventive Maintenance","Routine Maintenance","Replace Parts","Replace Consumables","Clear Blockage","Replace Seals","Performance Testing","Functional Check","Fluid Check","Visual Inspection","Lubrication System Maintenance","Electrical System Check"
+                "Replace Filter Cartridge", "Change/Replace Lubricant", "Check/Inspection", "Clean/Cleaning", "Lubricate", "Tighten/Secure", "Calibrate", "Debug/Adjust", "Preventive Maintenance", "Routine Maintenance", "Replace Parts", "Replace Consumables", "Clear Blockage", "Replace Seals", "Performance Testing", "Functional Check", "Fluid Check", "Visual Inspection", "Lubrication System Maintenance", "Electrical System Check"
         };
         List<Maintenance> maintenances = new ArrayList<>();
         List<AssetType> assetTypes = assetTypeService.list();
@@ -126,13 +126,13 @@ public class DataServiceImpl implements DataService {
                 maintenance.setAssetTypeId(assetType.getId());
                 maintenance.setScheduledDate(now);
                 maintenance.setContent(maintenanceLogs[new Random().nextInt(maintenanceLogs.length)]);
-                if(i<=0){
+                if (i >= 0) {
                     int x = new Random().nextInt(4);
                     maintenance.setStatus(x);
                     if (x > 0) {
                         maintenance.setCompletedTime(new Date());
                     }
-                }else{
+                } else {
                     maintenance.setStatus(0);
                 }
                 maintenance.setGmtCreate(new Date());
@@ -260,7 +260,7 @@ public class DataServiceImpl implements DataService {
                     asset.setGmtCreate(now);
                     asset.setGmtModified(now);
                     asset.setDeleted(0);
-                    if(new Random().nextInt(3)==1){
+                    if (new Random().nextInt(3) == 1) {
                         assets.add(asset);
                     }
                 }
