@@ -122,7 +122,7 @@ public class DataServiceImpl implements DataService {
                 Maintenance maintenance = new Maintenance();
                 maintenance.setAssetTypeId(assetType.getId());
                 maintenance.setScheduledDate(now);
-                maintenance.setContent("content");
+                maintenance.setContent(assetType.getAssetType()+" content");
                 int x = new Random().nextInt(2);
                 maintenance.setStatus(x);
                 if (x == 1) {
