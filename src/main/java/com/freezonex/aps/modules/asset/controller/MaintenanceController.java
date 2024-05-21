@@ -75,6 +75,7 @@ public class MaintenanceController {
         String fileName = MaintenanceDownloadEnum.codeOf(req.getType()).getDesc();
         InputStream inputStream = MaintenanceController.class.getResourceAsStream("/files/" + fileName);
         response.setContentType("application/octet-stream;charset=utf-8");
+        response.setHeader("Access-Control-Expose-Headers", "Content-disposition");
         response.setHeader(
                 "Content-disposition",
                 "attachment; filename=" + URLUtil.encode(fileName));

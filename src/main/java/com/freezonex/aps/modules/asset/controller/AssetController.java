@@ -119,6 +119,7 @@ public class AssetController {
             Asserts.fail("asset attachment not found");
         }
         response.setContentType("application/octet-stream;charset=utf-8");
+        response.setHeader("Access-Control-Expose-Headers", "Content-disposition");
         response.setHeader(
                 "Content-disposition",
                 "attachment; filename=" + URLUtil.encode(attachmentName));
