@@ -198,7 +198,7 @@ public class DataServiceImpl implements DataService {
                 inventory.setUnit(assetType.getUnit());
                 inventory.setSupplierName(assetType.getSupplierName());
                 //添加部门后理论上随机的库存就多了，这里需要修改
-                inventory.setExpectedQuantity(new Random().nextInt(30) + 70);
+                inventory.setExpectedQuantity(new Random().nextInt(40) + 60);
                 inventory.setCreationTime(now);
                 inventory.setExpectedDate(now);
                 inventory.setGmtCreate(now);

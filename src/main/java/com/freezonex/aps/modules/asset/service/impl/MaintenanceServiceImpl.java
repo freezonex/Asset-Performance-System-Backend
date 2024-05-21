@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
     public Boolean create(MaintenanceCreateReq req) {
         Maintenance maintenance = new Maintenance();
         maintenance.setAssetTypeId(req.getAssetTypeId());
-        maintenance.setScheduledDate(req.getScheduledDate());
+        maintenance.setScheduledDate(Date.from(req.getScheduledDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         maintenance.setContent(req.getContent());
         maintenance.setStatus(0);
         maintenance.setGmtCreate(new Date());
