@@ -119,10 +119,15 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
         List<Integer> values2 = new ArrayList<>();//存储随机数
         List<Integer> dates = Lists.newArrayList(year);//第一年
         for (int i = 0; i < x; i++) {
-            currentValue = Math.max(minValue, currentValue - (maxValue - minValue) / x); // 逐渐接近最小值
             dates.add(++year);
-            values1.add(currentValue);
-            values2.add(rand.nextInt((maxValue - minValue) + 1) + minValue);
+            if (maxValue <= minValue) {
+                values1.add(maxValue);
+                values2.add(maxValue);
+            } else {
+                currentValue = Math.max(minValue, currentValue - (maxValue - minValue) / x); // 逐渐接近最小值
+                values1.add(currentValue);
+                values2.add(rand.nextInt((maxValue - minValue) + 1) + minValue);
+            }
         }
         values2 = values2.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
         ValueModelDataDTO.DetailData initData = new ValueModelDataDTO.DetailData();
