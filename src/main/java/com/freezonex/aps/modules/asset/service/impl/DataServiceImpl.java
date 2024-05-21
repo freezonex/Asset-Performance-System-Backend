@@ -123,10 +123,14 @@ public class DataServiceImpl implements DataService {
                 maintenance.setAssetTypeId(assetType.getId());
                 maintenance.setScheduledDate(now);
                 maintenance.setContent(assetType.getAssetType()+" content");
-                int x = new Random().nextInt(2);
-                maintenance.setStatus(x);
-                if (x == 1) {
-                    maintenance.setCompletedTime(new Date());
+                if(i<=0){
+                    int x = new Random().nextInt(3);
+                    maintenance.setStatus(x);
+                    if (x > 0) {
+                        maintenance.setCompletedTime(new Date());
+                    }
+                }else{
+                    maintenance.setStatus(0);
                 }
                 maintenance.setGmtCreate(new Date());
                 maintenance.setGmtModified(new Date());
