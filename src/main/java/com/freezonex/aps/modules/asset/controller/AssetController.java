@@ -19,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -107,18 +104,26 @@ public class AssetController {
         if (asset == null) {
             Asserts.fail("asset not found");
         }
-        if (StringUtils.isBlank(asset.getAttachmentDir())) {
-            Asserts.fail("asset attachment not found");
+
+        String attachmentName;
+        InputStream inputStream;
+        if (StringUtils.isBlank(asset.getAttachmentDir()) ||!new File(asset.getAttachmentDir()).exists()) {
+            //如果文件不存在则使用默认的pdf 文件
+            attachmentName =  "asset.pdf";
+            inputStream = MaintenanceController.class.getResourceAsStream("/files/" + attachmentName);
+        }else{
+            attachmentName = asset.getAttachmentName();
+            inputStream = Files.newInputStream(Paths.get(asset.getAttachmentDir()));
         }
-        if (!new File(asset.getAttachmentDir()).exists()) {
+        if (inputStream ==null) {
             Asserts.fail("asset attachment not found");
         }
         response.setContentType("application/octet-stream;charset=utf-8");
         response.setHeader(
                 "Content-disposition",
-                "attachment; filename=" + URLUtil.encode(asset.getAttachmentName()));
+                "attachment; filename=" + URLUtil.encode(attachmentName));
         try (
-                BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(asset.getAttachmentDir())));
+                BufferedInputStream bis = new BufferedInputStream(inputStream);
                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())
         ) {
             byte[] buff = new byte[1024];
