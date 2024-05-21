@@ -1,5 +1,6 @@
 package com.freezonex.aps.modules.asset.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -28,8 +29,10 @@ public class WorkOrderListDTO implements Serializable {
 
     private Integer priority;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date creationTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dueTime;
 
     private Date completionTime;
