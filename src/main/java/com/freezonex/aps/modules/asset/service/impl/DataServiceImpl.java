@@ -112,25 +112,7 @@ public class DataServiceImpl implements DataService {
     private void initMaintenance() {
         // 定义一个包含20个维护日志描述的字符串数组
         String[] maintenanceLogs = {
-                "Performed routine check on Server-01, all systems operational.",
-                "Replaced faulty HDD in Workstation-15, system now stable.",
-                "Updated firmware on Router-02 to the latest version.",
-                "Cleaned air filters of AC Unit-03, improved cooling efficiency.",
-                "Conducted software update on POS-System-04, resolved UI glitches.",
-                "Inspected fire suppression system, no issues detected.",
-                "Lubricated moving parts of Conveyor Belt-05, reduced noise.",
-                "Repaired wiring issue in Lighting Zone A, restored full lighting.",
-                "Calibrated sensors on Machine-06 for optimal performance.",
-                "Installed additional RAM in Server-02, improved processing speed.",
-                "Replaced worn out belts in Printer-07, print quality improved.",
-                "Ran diagnostics on Security System, all cameras functional.",
-                "Serviced Elevator-01, ensured smooth operation.",
-                "Checked backup generator, ready for emergency use.",
-                "Upgraded network switches to increase bandwidth.",
-                "Refilled ink cartridges in Plotter-02, ready for large prints.",
-                "Adjusted temperature settings in Cold Storage-01.",
-                "Verified data integrity on Backup Drive-03, all data intact.",
-                "Repaired leak in Water Cooling System-04, system stabilized."
+                "Replace Filter Cartridge","Change/Replace Lubricant","Check/Inspection","Clean/Cleaning","Lubricate","Tighten/Secure","Calibrate","Debug/Adjust","Preventive Maintenance","Routine Maintenance","Replace Parts","Replace Consumables","Clear Blockage","Replace Seals","Performance Testing","Functional Check","Fluid Check","Visual Inspection","Lubrication System Maintenance","Electrical System Check"
         };
         List<Maintenance> maintenances = new ArrayList<>();
         List<AssetType> assetTypes = assetTypeService.list();
