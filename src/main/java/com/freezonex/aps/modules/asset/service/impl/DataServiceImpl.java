@@ -59,6 +59,7 @@ public class DataServiceImpl implements DataService {
     private void intDepartment() {
         ArrayList<String> strings = Lists.newArrayList("IT", "HR"
                 , "Finance", "Marketing", "Sales", "Operations", "Research & Development", "Customer Service", "Legal", "Administration"
+                , "Design", "HealthAndSafety", "QualityAssurance", "EnvironmentalManagement", "PublicRelations"
         );
         List<Department> departments = new ArrayList<>();
         for (String string : strings) {
@@ -77,13 +78,26 @@ public class DataServiceImpl implements DataService {
                 , "Laptop", "Monitor", "Server", "Keyboard", "Mouse", "Scanner", "Projector", "Copier",
                 "Telephone", "NetworkRouter", "Switch", "Modem", "UPS", "HardDrive", "RAM", "Motherboard", "CPU", "Speaker"
         );
+        String[] supplierBrands = {
+                "Apple", "Lenovo", "Samsung", "HP", "Dell", "Acer", "Asus",
+                "Intel", "AMD", "NVIDIA", "Cisco", "IBM", "Oracle", "Amazon",
+                "Sony", "LG", "Panasonic", "Philips"
+        };
+        // 定义一个包含5个通用计数单位的字符串数组
+        String[] units = {
+                "pcs", // Pieces, 件、个
+                "doz", // Dozen, 打（12个）
+                "dz",  // Another abbreviation for Dozen
+                "ctn", // Carton, 箱
+                "pkt", // Packet, 小包
+        };
         List<AssetType> assetTypes = new ArrayList<>();
         for (String string : strings) {
             AssetType assetType = new AssetType();
             assetType.setAssetType(string);
             assetType.setSafetyStockQuantity(0);
-            assetType.setUnit("pcs");
-            assetType.setSupplierName("apple");
+            assetType.setUnit(units[new Random().nextInt(units.length)]);
+            assetType.setSupplierName(supplierBrands[new Random().nextInt(supplierBrands.length)]);
             assetType.setIcon(null);
             assetType.setPriceValue(new Random().nextInt(900) + 100);
             assetType.setGmtCreate(new Date());
@@ -102,7 +116,7 @@ public class DataServiceImpl implements DataService {
         for (AssetType assetType : assetTypes) {
             // 获取当前日期
             LocalDate today = LocalDate.now();
-            for (int i = -5; i <= 10; i++) {
+            for (int i = -6; i <= 10; i++) {
                 LocalDate date = today.minusDays(i);
                 Date now = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 Maintenance maintenance = new Maintenance();
@@ -174,7 +188,7 @@ public class DataServiceImpl implements DataService {
         List<Inventory> inventories = new ArrayList<>();
         // 获取当前日期
         LocalDate today = LocalDate.now();
-        for (int i = -5; i <= 14; i++) {
+        for (int i = -6; i <= 14; i++) {
             LocalDate date = today.minusDays(i);
             Date now = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
             for (AssetType assetType : assetTypes) {

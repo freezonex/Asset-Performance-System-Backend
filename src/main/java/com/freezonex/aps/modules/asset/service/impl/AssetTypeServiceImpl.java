@@ -47,7 +47,7 @@ public class AssetTypeServiceImpl extends ServiceImpl<AssetTypeMapper, AssetType
         LambdaQueryWrapper<AssetType> query = new LambdaQueryWrapper<>();
         query.eq(StringUtils.isNotEmpty(req.getAssetType()), AssetType::getAssetType, req.getAssetType());
         query.in(CollectionUtil.isNotEmpty(req.getAssetTypeIds()), AssetType::getId, req.getAssetTypeIds());
-        query.orderByAsc(AssetType::getId);
+        query.orderByDesc(AssetType::getId);
         Page<AssetType> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, assetTypeConvert::toDTO);
     }

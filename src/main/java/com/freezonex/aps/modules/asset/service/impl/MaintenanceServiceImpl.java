@@ -45,9 +45,9 @@ public class MaintenanceServiceImpl extends ServiceImpl<MaintenanceMapper, Maint
         query.like(StringUtils.isNotEmpty(req.getSearchContent()), Maintenance::getContent, req.getSearchContent());
         query.in(Maintenance::getStatus, req.getStatus());
         if (req.getStatus().equals(1)) {
-            query.orderByAsc(Maintenance::getCompletedTime);
+            query.orderByDesc(Maintenance::getCompletedTime);
         } else {
-            query.orderByAsc(Maintenance::getId);
+            query.orderByDesc(Maintenance::getId);
         }
         Page<Maintenance> assetPage = this.getBaseMapper().selectPage(page, query);
         return CommonPage.restPage(assetPage, maintenanceConvert::toDTO);
