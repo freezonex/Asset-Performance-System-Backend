@@ -27,6 +27,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/apps/freezonex-aps/apsfrontend/")
                 .resourceChain(true)
                 .addResolver(new HtmlPathResourceResolver());
+        registry.addResourceHandler("/apsbackend/**").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+
     }
     // 自定义资源解析器
     class HtmlPathResourceResolver extends PathResourceResolver {
