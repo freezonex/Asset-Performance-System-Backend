@@ -268,9 +268,15 @@ public class DataServiceImpl implements DataService {
                     asset.setGmtCreate(now);
                     asset.setGmtModified(now);
                     asset.setDeleted(0);
-                    if (new Random().nextInt(3) == 1) {
+                    if (i == 19 && assetType.getAssetType().equals("Freezonex")) {
+                        //最后几条直接插入，保证测试数据能显示
                         assets.add(asset);
+                    } else {
+                        if (new Random().nextInt(3) == 1) {
+                            assets.add(asset);
+                        }
                     }
+
                 }
             }
         }
