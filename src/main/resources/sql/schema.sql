@@ -26,8 +26,12 @@ CREATE TABLE `asset` (
                          `gmt_create` datetime NOT NULL DEFAULT current_timestamp(),
                          `gmt_modified` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
                          `deleted` int(11) NOT NULL DEFAULT 0,
+                         `model_url` varchar(2000) DEFAULT NULL COMMENT '3d-url',
+                         `glb_url` varchar(2000) DEFAULT NULL COMMENT '3d-gbl',
+                         `gbl_dir` varchar(1000) DEFAULT NULL COMMENT '3d-gbl System directory',
+                         `gbl_file_name` varchar(1000) DEFAULT NULL,
                          PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24  COMMENT='asset';
+) ENGINE=InnoDB AUTO_INCREMENT=47110 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='asset';
 
 
 -- apsdatabase.asset_type definition
@@ -77,9 +81,10 @@ CREATE TABLE `inventory` (
                              `gmt_create` datetime NOT NULL DEFAULT current_timestamp(),
                              `gmt_modified` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
                              `deleted` int(11) NOT NULL DEFAULT 0,
+                             `ai` int(11) NOT NULL DEFAULT 0,
                              PRIMARY KEY (`id`),
                              UNIQUE KEY `inventory_asset_type_id_expected_date_uindex` (`asset_type_id`,`expected_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=34  COMMENT='asset inventory';
+) ENGINE=InnoDB AUTO_INCREMENT=8866 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='asset inventory';
 
 
 -- apsdatabase.maintenance definition
