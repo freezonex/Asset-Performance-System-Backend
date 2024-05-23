@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -235,9 +236,10 @@ public class DataServiceImpl implements DataService {
         for (int i = 0; i <= 19; i++) {
             LocalDate date = today.minusDays(i);
             Date now = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            for (AssetType assetType : assetTypes) {
-                List<AssetComponent> list = assetTypeAndAsset.get(assetType.getAssetType());
-                for (Department department : departments) {
+            for (Department department : departments) {
+                for (AssetType assetType : assetTypes) {
+                    List<AssetComponent> list = assetTypeAndAsset.get(assetType.getAssetType());
+
                     Asset asset = new Asset();
                     asset.setAssetId(String.format("S#%s", num++));
                     AssetComponent assetComponent = list.get(new Random().nextInt(list.size()));
@@ -268,18 +270,37 @@ public class DataServiceImpl implements DataService {
                     asset.setGmtCreate(now);
                     asset.setGmtModified(now);
                     asset.setDeleted(0);
-                    if (i == 19 && assetType.getAssetType().equals("Freezonex")) {
-                        //最后几条直接插入，保证测试数据能显示
+                    if (new Random().nextInt(3) == 1) {
                         assets.add(asset);
-                    } else {
-                        if (new Random().nextInt(3) == 1) {
-                            assets.add(asset);
-                        }
                     }
-
                 }
             }
         }
+
+        List<AssetComponent> freezonex = assetTypeAndAsset.get("Freezonex");
+        List<String> collect = freezonex.stream().map(AssetComponent::getName).collect(Collectors.toList());
+        Iterator<Asset> iterator = assets.iterator();
+        List<Asset> lastList1 = new ArrayList<>();//存储Freezonex 每个资产一条记录
+        List<Asset> lastList2 = new ArrayList<>();//存储
+        while (iterator.hasNext()) {
+            Asset item = iterator.next();
+            if ("Freezonex".equals(item.getAssetType())) {
+                Set<String> set = lastList1.stream().map(Asset::getAssetName).collect(Collectors.toSet());
+                if (!set.contains(item.getAssetName())) {
+                    lastList1.add(item);
+                    collect.remove(item.getAssetName());
+                    iterator.remove();
+                }
+            } else {
+                Set<String> set = lastList2.stream().map(Asset::getAssetType).collect(Collectors.toSet());
+                if (!set.contains(item.getAssetType())) {
+                    lastList2.add(item);
+                    iterator.remove();
+                }
+            }
+        }
+        assets.addAll(lastList2);
+        assets.addAll(lastList1);
         assetService.saveBatch(assets);
     }
 

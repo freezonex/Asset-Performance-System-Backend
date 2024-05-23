@@ -109,9 +109,6 @@ public class AssetController {
         if (req.getType() != null && req.getType() == 2) {
             //如果是 3d-gbl的文件
             fileDir = asset.getGblDir();
-            if (StringUtils.isBlank(fileDir) || !new File(fileDir).exists()) {
-                Asserts.fail("3d-gbl file not found");
-            }
             attachmentName= asset.getGblFileName();
         }
 
@@ -119,6 +116,9 @@ public class AssetController {
         if (StringUtils.isBlank(fileDir) ||!new File(fileDir).exists()) {
             //如果文件不存在则使用默认的pdf 文件
             attachmentName =  "asset.pdf";
+            if (req.getType() != null && req.getType() == 2) {
+                attachmentName = "Dog_textured_mesh_glb.glb";
+            }
             inputStream = MaintenanceController.class.getResourceAsStream("/files/" + attachmentName);
         }else{
             inputStream = Files.newInputStream(Paths.get(fileDir));
