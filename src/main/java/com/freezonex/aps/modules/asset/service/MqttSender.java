@@ -15,7 +15,7 @@ public class MqttSender {
     public void sendMessage(String topic, String payload) throws MqttException {
         if (mqttClient.isConnected()) {
             MqttMessage message = new MqttMessage(payload.getBytes());
-            message.setQos(0);
+            message.setQos(2);
             message.setRetained(true);
             mqttClient.publish(topic, message);
         }
