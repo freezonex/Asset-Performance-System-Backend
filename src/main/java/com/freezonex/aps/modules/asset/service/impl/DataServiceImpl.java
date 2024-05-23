@@ -4,6 +4,9 @@ import cn.hutool.core.lang.UUID;
 import com.freezonex.aps.modules.asset.model.*;
 import com.freezonex.aps.modules.asset.service.*;
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 @Service
@@ -74,10 +74,11 @@ public class DataServiceImpl implements DataService {
     }
 
     private void initAssetType() {
-        ArrayList<String> strings = Lists.newArrayList("Computer", "Printer"
-                , "Laptop", "Monitor", "Server", "Keyboard", "Mouse", "Scanner", "Projector", "Copier",
-                "Telephone", "NetworkRouter", "Switch", "Modem", "UPS", "HardDrive", "RAM", "Motherboard", "CPU", "Speaker"
-        );
+        String specialType = "Freezonex";
+        Set<String> strings = assetTypeAndAsset().keySet();
+        strings.remove(specialType);
+        List<String> assetTypeNames = new ArrayList<>(strings);
+        assetTypeNames.add(specialType);//放在最后，页面查询显示再第一行
         String[] supplierBrands = {
                 "Apple", "Lenovo", "Samsung", "HP", "Dell", "Acer", "Asus",
                 "Intel", "AMD", "NVIDIA", "Cisco", "IBM", "Oracle", "Amazon",
@@ -92,12 +93,16 @@ public class DataServiceImpl implements DataService {
                 "pkt", // Packet, 小包
         };
         List<AssetType> assetTypes = new ArrayList<>();
-        for (String string : strings) {
+        for (String name : assetTypeNames) {
             AssetType assetType = new AssetType();
-            assetType.setAssetType(string);
+            assetType.setAssetType(name);
             assetType.setSafetyStockQuantity(0);
             assetType.setUnit(units[new Random().nextInt(units.length)]);
-            assetType.setSupplierName(supplierBrands[new Random().nextInt(supplierBrands.length)]);
+            if (name.equals(specialType)) {
+                assetType.setSupplierName(specialType);//需要要求一样
+            } else {
+                assetType.setSupplierName(supplierBrands[new Random().nextInt(supplierBrands.length)]);
+            }
             assetType.setIcon(null);
             assetType.setPriceValue(new Random().nextInt(900) + 100);
             assetType.setGmtCreate(new Date());
@@ -211,6 +216,7 @@ public class DataServiceImpl implements DataService {
                 inventory.setGmtCreate(now);
                 inventory.setGmtModified(now);
                 inventory.setDeleted(0);
+                inventory.setAi(new Random().nextInt(4) == 1 ? 1 : 0);//四分之一概率ai标识
                 inventories.add(inventory);
             }
         }
@@ -218,6 +224,7 @@ public class DataServiceImpl implements DataService {
     }
 
     private void initAsset() {
+        Map<String, List<AssetComponent>> assetTypeAndAsset = assetTypeAndAsset();
         String[] person = person();
         List<AssetType> assetTypes = assetTypeService.list();
         List<Department> departments = departmentService.list();
@@ -229,15 +236,16 @@ public class DataServiceImpl implements DataService {
             LocalDate date = today.minusDays(i);
             Date now = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
             for (AssetType assetType : assetTypes) {
+                List<AssetComponent> list = assetTypeAndAsset.get(assetType.getAssetType());
                 for (Department department : departments) {
-
                     Asset asset = new Asset();
                     asset.setAssetId(String.format("S#%s", num++));
-                    asset.setAssetName(assetType.getAssetType());
+                    AssetComponent assetComponent = list.get(new Random().nextInt(list.size()));
+                    asset.setAssetName(assetComponent.getName());
                     asset.setAssetTypeId(assetType.getId());
                     asset.setAssetType(assetType.getAssetType());
                     asset.setVendorModel(String.format("Y%s-%s", new Random().nextInt(901) + 100, new Random().nextInt(10) + 1));
-                    asset.setDescription("description" + num);
+                    asset.setDescription(assetComponent.getDescription());
                     asset.setSn(UUID.fastUUID().toString(true));
                     boolean used = new Random().nextInt(5) == 0;
                     asset.setUsedStatus(used ? 1 : 0);
@@ -295,5 +303,165 @@ public class DataServiceImpl implements DataService {
         names[18] = "Sam";
         names[19] = "Tina";
         return names;
+    }
+
+    private Map<String, List<AssetComponent>> assetTypeAndAsset() {
+        Map<String, List<AssetComponent>> assetComponentsWithDescriptions = new HashMap<>();
+
+        assetComponentsWithDescriptions.put("Microchips", Lists.newArrayList(
+                new AssetComponent("Integrated Circuits (ICs)", "Miniature electronic circuits used to perform specific functions in devices."),
+                new AssetComponent("Capacitors", "Devices that store electrical energy in an electric field."),
+                new AssetComponent("Resistors", "Components that oppose the flow of electric current, reducing voltage."),
+                new AssetComponent("Transistors", "Semiconductor devices used to amplify or switch electronic signals.")
+        ));
+
+        assetComponentsWithDescriptions.put("Steel Beams", Lists.newArrayList(
+                new AssetComponent("Welding Rods", "Consumable wire electrodes used in welding to fuse metal parts."),
+                new AssetComponent("Reinforcing Bars (Rebars)", "Steel bars used to reinforce concrete and increase its tensile strength."),
+                new AssetComponent("Structural Bolts", "High-strength bolts designed for structural applications."),
+                new AssetComponent("Anchors", "Fixtures used to secure structures to concrete or masonry.")
+        ));
+
+        assetComponentsWithDescriptions.put("Spinning Machines", Lists.newArrayList(
+                new AssetComponent("Bobbins", "Hold the yarn during spinning process."),
+                new AssetComponent("Spindles", "Rotate to twist fibers into yarn."),
+                new AssetComponent("Draw Rolls", "Draw out and align fibers."),
+                new AssetComponent("Carding Brushes", "Untangle and clean fibers before spinning.")
+        ));
+
+        assetComponentsWithDescriptions.put("Turbines", Lists.newArrayList(
+                new AssetComponent("Blades", "Convert fluid flow energy into rotational motion."),
+                new AssetComponent("Generator Rotor", "Rotates within magnetic fields to generate electricity."),
+                new AssetComponent("Guide Vanes", "Direct the fluid flow onto turbine blades."),
+                new AssetComponent("Bearing Assemblies", "Support and reduce friction for rotating parts.")
+        ));
+
+        assetComponentsWithDescriptions.put("Warehouse Robots", Lists.newArrayList(
+                new AssetComponent("AGV Batteries", "Power source for Automated Guided Vehicles."),
+                new AssetComponent("Robotic Arms' End Effectors", "Attach to the arm's end, performing tasks like picking or placing."),
+                new AssetComponent("Navigation Sensors", "Enable autonomous navigation within the warehouse."),
+                new AssetComponent("Conveyor Belts", "Transport materials between workstations.")
+        ));
+
+        assetComponentsWithDescriptions.put("Server Processors", Lists.newArrayList(
+                new AssetComponent("Heat Sinks", "Help dissipate heat generated by the processor."),
+                new AssetComponent("RAM Modules", "Temporary memory for running applications."),
+                new AssetComponent("Hard Disk Drives (HDDs)/Solid State Drives (SSDs)", "Permanent storage for data."),
+                new AssetComponent("Power Supplies", "Provide stable power to the server components.")
+        ));
+
+        assetComponentsWithDescriptions.put("Elevator Motors", Lists.newArrayList(
+                new AssetComponent("Gear Reducers", "Reduce motor speed to increase torque."),
+                new AssetComponent("Brake Coils", "Control elevator braking system."),
+                new AssetComponent("Hoist Cables", "Lift and lower the elevator car."),
+                new AssetComponent("Guide Rails", "Ensure vertical alignment of the elevator car.")
+        ));
+        assetComponentsWithDescriptions.put("Dental Chairs", Lists.newArrayList(
+                new AssetComponent("Dental Handpieces", "High-speed and low-speed rotary tools for drilling and polishing teeth."),
+                new AssetComponent("X-ray Tubes", "Emits X-rays for diagnostic imaging of teeth and gums."),
+                new AssetComponent("Patient Chair Controls", "Adjust chair position, recline angle, and comfort settings."),
+                new AssetComponent("Dental Lights", "Provide bright, focused light to enhance visibility during procedures.")
+        ));
+
+        assetComponentsWithDescriptions.put("Broadcasting Cameras", Lists.newArrayList(
+                new AssetComponent("Camera Lenses", "Capture high-definition images and video with adjustable zoom and focus."),
+                new AssetComponent("Tripods", "Stable support structure to hold the camera steady during filming."),
+                new AssetComponent("Microphone Kits", "Professional audio capture devices for clear sound recording."),
+                new AssetComponent("Memory Cards", "Fast storage media for recording high-resolution video and images.")
+        ));
+
+        assetComponentsWithDescriptions.put("Water Purification Units", Lists.newArrayList(
+                new AssetComponent("Reverse Osmosis Membranes", "Filter out impurities by forcing water through a semi-permeable membrane."),
+                new AssetComponent("Activated Carbon Filters", "Remove chlorine, odors, and organic compounds."),
+                new AssetComponent("UV Sterilization Lamps", "Destroy microorganisms using ultraviolet light."),
+                new AssetComponent("Pre-Filters", "Remove large particles and sediment before the main filtration process.")
+        ));
+
+        assetComponentsWithDescriptions.put("CNC Milling Machines", Lists.newArrayList(
+                new AssetComponent("Cutting Tools (End Mills, Drill Bits)", "Remove material from the workpiece with precision."),
+                new AssetComponent("Collet Chucks", "Hold cutting tools securely in place."),
+                new AssetComponent("Spindle Motors", "Provide rotational power to the cutting tool."),
+                new AssetComponent("Linear Guides", "Enable precise linear motion along machine axes.")
+        ));
+
+        assetComponentsWithDescriptions.put("Flight Simulators", Lists.newArrayList(
+                new AssetComponent("Control Yokes", "Simulated airplane steering mechanisms."),
+                new AssetComponent("Rudder Pedals", "Control simulator yaw movement."),
+                new AssetComponent("Visual Display Systems", "Provide a realistic visual representation of flight scenarios."),
+                new AssetComponent("Motion Platforms", "Create physical sensations of movement and turbulence.")
+        ));
+
+        assetComponentsWithDescriptions.put("Smart Thermostats", Lists.newArrayList(
+                new AssetComponent("Temperature Sensors", "Detect ambient temperature for automated control."),
+                new AssetComponent("Wi-Fi Modules", "Enable remote control and monitoring via internet."),
+                new AssetComponent("Touchscreen Interfaces", "User-friendly display for setting temperature and modes."),
+                new AssetComponent("Relay Switches", "Activate heating or cooling systems based on thermostat settings.")
+        ));
+
+        assetComponentsWithDescriptions.put("Fuel Injection Systems", Lists.newArrayList(
+                new AssetComponent("Fuel Injectors", "Meter and spray fuel into the engine cylinders."),
+                new AssetComponent("Fuel Pumps", "Supply fuel under pressure to injectors."),
+                new AssetComponent("Fuel Rails", "Distribute pressurized fuel evenly to each injector."),
+                new AssetComponent("Pressure Regulators", "Control fuel pressure to optimize injection efficiency.")
+        ));
+
+        assetComponentsWithDescriptions.put("Solar Inverters", Lists.newArrayList(
+                new AssetComponent("DC-to-AC Converters", "Transform direct current from solar panels to usable alternating current."),
+                new AssetComponent("Capacitor Banks", "Store and release energy to stabilize voltage."),
+                new AssetComponent("Cooling Fans", "Ensure optimal operating temperature for the inverter electronics."),
+                new AssetComponent("Monitoring Units", "Track and report system performance and status.")
+        ));
+
+        assetComponentsWithDescriptions.put("CNC Lathes", Lists.newArrayList(
+                new AssetComponent("Chuck Jaws", "Hold workpieces securely while they are rotated and machined."),
+                new AssetComponent("Live Tooling", "Perform milling and drilling operations while the part is being turned."),
+                new AssetComponent("Bar Feeders", "Automatically feed bar stock into the lathe for continuous machining."),
+                new AssetComponent("Turret Assemblies", "House multiple cutting tools for quick tool changes during operation.")
+        ));
+
+        assetComponentsWithDescriptions.put("POS Terminals", Lists.newArrayList(
+                new AssetComponent("Barcode Scanners", "Read product codes for rapid checkout."),
+                new AssetComponent("Receipt Printers", "Print transaction records for customers."),
+                new AssetComponent("Magnetic Stripe Readers", "Process payments from credit and debit cards."),
+                new AssetComponent("PIN Pads", "Securely accept customer PIN entries for card transactions.")
+        ));
+
+
+        assetComponentsWithDescriptions.put("Laboratory Centrifuges", Lists.newArrayList(
+                new AssetComponent("Rotors", "Hold sample tubes and spin to separate contents."),
+                new AssetComponent("Sample Tubes", "Contain samples for centrifugation."),
+                new AssetComponent("Temperature Controllers", "Maintain desired temperatures during spins."),
+                new AssetComponent("Safety Lid Locks", "Ensure safe operation by preventing lid opening during spin.")
+        ));
+
+//        assetComponentsWithDescriptions.put("Hydraulic Excavators", Lists.newArrayList(
+//                new AssetComponent("Hydraulic Cylinders", "Operate the excavator arms and bucket."),
+//                new AssetComponent("Bucket Teeth", "Dig and break ground materials."),
+//                new AssetComponent("Track Chains", "Provide mobility and stability."),
+//                new AssetComponent("Swivel Joints", "Allow rotation of hydraulic lines.")
+//        ));
+
+        assetComponentsWithDescriptions.put("AR/VR Headsets", Lists.newArrayList(
+                new AssetComponent("OLED/LCD Displays", "High-resolution screens that create immersive visuals for AR/VR experiences."),
+                new AssetComponent("Positional Tracking Sensors", "Sensors that track head movements for accurate virtual environment interactions."),
+                new AssetComponent("Haptic Feedback Gloves", "Gloves that provide tactile feedback, enhancing the sense of touch in virtual reality."),
+                new AssetComponent("Lens Kits", "Optical components that ensure a clear and wide field of view in AR/VR devices.")
+        ));
+
+        assetComponentsWithDescriptions.put("Freezonex", Lists.newArrayList(
+                new AssetComponent("Dog", "This 3D model shows a \"robot dog\". It has four articulated legs for agile movement, sensors on its head for navigation and environment perception, and a handle on top for easy carrying. The robot is pictured in an office setting, indicating it is used for demonstration or research purposes."),
+                new AssetComponent("Table", "This 3D model shows a modern, curved display table with multiple monitors set up on top. The table is metallic and situated in a high-tech environment, possibly an exhibition or a control room, with various electronic equipment and components mounted on the walls in the background."),
+                new AssetComponent("OMC", "This 3D model shows a vertical arrangement of industrial electronic modules mounted on a panel. Each module is connected with various cables and has status indicators showing operational conditions. The setup is part of an industrial automation system, designed for process control and monitoring."),
+                new AssetComponent("SIS", "This 3D model shows a SUPCON industrial control system rack with multiple modular components. Each module has indicators showing operational status and connectivity, including network interfaces and signal processing units. The system is designed for high reliability and safety in industrial automation applications.")
+        ));
+        return assetComponentsWithDescriptions;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    static class AssetComponent {
+        private String name;
+        private String description;
     }
 }

@@ -104,16 +104,24 @@ public class AssetController {
         if (asset == null) {
             Asserts.fail("asset not found");
         }
+        String fileDir =asset.getAttachmentDir();
+        String attachmentName = asset.getAttachmentName();
+        if (req.getType() != null && req.getType() == 2) {
+            //如果是 3d-gbl的文件
+            fileDir = asset.getGblDir();
+            if (StringUtils.isBlank(fileDir) || !new File(fileDir).exists()) {
+                Asserts.fail("3d-gbl file not found");
+            }
+            attachmentName= asset.getGblFileName();
+        }
 
-        String attachmentName;
         InputStream inputStream;
-        if (StringUtils.isBlank(asset.getAttachmentDir()) ||!new File(asset.getAttachmentDir()).exists()) {
+        if (StringUtils.isBlank(fileDir) ||!new File(fileDir).exists()) {
             //如果文件不存在则使用默认的pdf 文件
             attachmentName =  "asset.pdf";
             inputStream = MaintenanceController.class.getResourceAsStream("/files/" + attachmentName);
         }else{
-            attachmentName = asset.getAttachmentName();
-            inputStream = Files.newInputStream(Paths.get(asset.getAttachmentDir()));
+            inputStream = Files.newInputStream(Paths.get(fileDir));
         }
         if (inputStream ==null) {
             Asserts.fail("asset attachment not found");

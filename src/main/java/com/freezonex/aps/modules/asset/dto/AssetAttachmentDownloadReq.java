@@ -12,4 +12,6 @@ import javax.validation.constraints.NotNull;
 public class AssetAttachmentDownloadReq {
     @NotNull
     private Long id;
+
+    private Integer type;
 }

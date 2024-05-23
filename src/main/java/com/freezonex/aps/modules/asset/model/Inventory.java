@@ -54,6 +54,8 @@ public class Inventory implements Serializable {
 
     private Date gmtModified;
 
+    private Integer ai;
+
     @TableLogic
     private Integer deleted;
 

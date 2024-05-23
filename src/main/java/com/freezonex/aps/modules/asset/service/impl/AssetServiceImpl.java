@@ -51,6 +51,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Value("${asset.upload.dir}")
     private String uploadDir;
 
+    @Value("${asset.download.website:http://47.236.10.165:30090}")
+    private String website;
+
     @Override
     public CommonPage<AssetListDTO> list(AssetListReq req) {
         Page<Asset> page = new Page<>(req.getPageNum(), req.getPageSize());
@@ -84,9 +87,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1) {
             req.setUsedDate(new Date());
         }
+
         Asset asset = assetConvert.toAsset(req);
         asset.setGmtCreate(new Date());//数据库时区不对 使用系统时间
-        return this.save(asset);
+        boolean result = this.save(asset);
+        if(StringUtils.isNotBlank(req.getGblDir())){
+            asset.setGlbUrl(website+"/apsbackend/asset/download?type=2&id="+asset.getId());
+        }
+        this.updateById(asset);
+        return result;
     }
 
     @Override
@@ -98,8 +107,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         }
         Asset oldAsset = this.getById(req.getId());
         if (req.getUsedStatus() != null && req.getUsedStatus() == 1 && (oldAsset.getUsedStatus() == null || oldAsset.getUsedStatus() == 0)) {
-            //如果未使用变成使用状态 则设置使用日期
+            //如果未使用变成使用状态 则修改状态 设置使用日期
+            req.setUsedStatus(1);
             req.setUsedDate(new Date());
+        } else {
+            //否则维持之前的数据
+            req.setUsedStatus(oldAsset.getUsedStatus());
+            req.setUsedDate(oldAsset.getUsedDate());
         }
         Asset asset = assetConvert.toAsset(req);
         LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();

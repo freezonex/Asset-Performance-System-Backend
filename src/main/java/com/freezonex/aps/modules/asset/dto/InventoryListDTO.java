@@ -35,4 +35,6 @@ public class InventoryListDTO implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date expectedDate;
+
+    private Integer ai;
 }

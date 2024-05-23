@@ -303,9 +303,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         Inventory inventory = getInventory(req.getAssetTypeId(), req.getExpectedDate());
         if (inventory != null) {
-            Asserts.fail("expected date a record already exists");
+            //删除 使用新创建的覆盖
+            this.removeById(inventory.getId());
         }
         inventory = new Inventory();
+        inventory.setAi(0);
         inventory.setAssetTypeId(assetType.getId());
         inventory.setAssetType(assetType.getAssetType());
         inventory.setUnit(assetType.getUnit());

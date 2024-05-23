@@ -64,4 +64,17 @@ public class AssetCreateReq {
 
     private String attachmentDir;
 
+    @ApiModelProperty(
+            value = "3d-url"
+    )
+    private String modelUrl;
+
+    @ApiModelProperty(
+            value = "3d-gbl"
+    )
+    private String glbUrl;
+
+    private String gblDir;
+
+    private String gblFileName;
 }

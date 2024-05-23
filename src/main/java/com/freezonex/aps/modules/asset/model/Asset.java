@@ -83,4 +83,12 @@ public class Asset implements Serializable {
 
     @TableLogic
     private Integer deleted;
+
+    private String modelUrl;
+
+    private String glbUrl;
+
+    private String gblDir;
+
+    private String gblFileName;
 }
