@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class DataServiceImpl implements DataService {
     private MaintenanceService maintenanceService;
     @Resource
     private JdbcTemplate jdbcTemplate;
+
+    @Value("${asset.download.website:http://47.236.10.165:30090}")
+    private String website;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -302,6 +306,11 @@ public class DataServiceImpl implements DataService {
         assets.addAll(lastList2);
         assets.addAll(lastList1);
         assetService.saveBatch(assets);
+        List<Asset> list = assetService.list();
+        for (Asset asset : list) {
+            asset.setGlbUrl(website+"/apsbackend/asset/download?type=2&id="+asset.getId());
+        }
+        assetService.updateBatchById(list);
     }
 
     private String[] person() {
