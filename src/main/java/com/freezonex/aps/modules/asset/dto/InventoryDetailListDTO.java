@@ -26,4 +26,6 @@ public class InventoryDetailListDTO implements Serializable {
             value = "color type 0:Gray 1:Blue 2:Black"
     )
     private Integer colorType;
+
+    private Integer ai;
 }

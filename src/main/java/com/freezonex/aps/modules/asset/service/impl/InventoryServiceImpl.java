@@ -135,6 +135,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         inventory.setExpectedQuantity(0);
         inventory.setCreationTime(new Date());
         inventory.setExpectedDate(new Date());
+        inventory.setAi(0);
         return inventory;
     }
 
