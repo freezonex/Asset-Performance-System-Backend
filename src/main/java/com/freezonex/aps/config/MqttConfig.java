@@ -26,26 +26,20 @@ public class MqttConfig {
     @Value("${mqtt.automatic-reconnect}")
     private boolean automaticReconnect;
 
-    /**
-     * Creates and initializes an IMqttClient instance for connecting to the MQTT broker.
-     *
-     * @return IMqttClient The initialized MQTT client instance, or null if the connection fails.
-     */
     @Bean
     public IMqttClient mqttClient() {
+        IMqttClient client = null;
         try {
-            IMqttClient client = new MqttClient(brokerUrl, clientId);
+            client = new MqttClient(brokerUrl, clientId);
             MqttConnectOptions options = new MqttConnectOptions();
             options.setAutomaticReconnect(automaticReconnect);
             options.setCleanSession(cleanSession);
             options.setConnectionTimeout(connectionTimeout);
             client.connect(options);
-            return client;
         } catch (MqttException e) {
-            // Log the exception and return null to allow the application to continue starting
             System.err.println("Failed to connect to MQTT broker: " + e.getMessage());
-            return null;
+            // Handle or log the exception as needed
         }
+        return client;
     }
-
 }
