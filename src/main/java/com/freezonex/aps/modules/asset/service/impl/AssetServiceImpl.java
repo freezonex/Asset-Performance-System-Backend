@@ -126,10 +126,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             req.setUsedDate(oldAsset.getUsedDate());
         }
         Asset asset = assetConvert.toAsset(req);
+        asset.setId(req.getId());
         asset.setGmtModified(new Date());
-        LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();
-        updateWrapper.eq(Asset::getId, req.getId());
-        boolean update = this.update(asset, updateWrapper);
+        boolean update = this.updateById(asset);
         if (update) {
             sendMsg(req.getId());
         }
