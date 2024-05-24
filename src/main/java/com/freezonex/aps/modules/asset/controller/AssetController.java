@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -117,7 +119,7 @@ public class AssetController {
             //如果文件不存在则使用默认的pdf 文件
             attachmentName =  "asset.pdf";
             if (req.getType() != null && req.getType() == 2) {
-                attachmentName = "Dog_textured_mesh_glb.glb";
+                attachmentName = getDefaultFile(asset.getAssetName());
             }
             inputStream = MaintenanceController.class.getResourceAsStream("/files/" + attachmentName);
         }else{
@@ -140,6 +142,21 @@ public class AssetController {
             while ((len = bis.read(buff)) > 0) {
                 bos.write(buff, 0, len);
             }
+        }
+    }
+
+    private String getDefaultFile(String assetName) {
+        Map<String, String> map = new HashMap<>();
+        map.put("Dog", "Dog_textured_mesh_glb.glb");
+        map.put("Table", "Table_textured_mesh_glb.glb");
+        map.put("OMC", "Omc_textured_mesh_glb.glb");
+        map.put("SIS", "SIS_textured_mesh_glb.glb");
+        if (map.containsKey(assetName)) {
+            return map.get(assetName);
+        } else {
+            //随机选取一个
+            List<String> collect = new ArrayList<>(map.values());
+            return collect.get(new Random(assetName.hashCode()).nextInt(collect.size()));
         }
     }
 
