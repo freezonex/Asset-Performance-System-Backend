@@ -127,6 +127,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         }
         Asset asset = assetConvert.toAsset(req);
         asset.setId(req.getId());
+        asset.setGmtCreate(oldAsset.getGmtCreate());
         asset.setGmtModified(new Date());
         boolean update = this.updateById(asset);
         if (update) {
