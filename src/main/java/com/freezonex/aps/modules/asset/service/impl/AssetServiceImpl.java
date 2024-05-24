@@ -100,10 +100,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         asset.setGmtCreate(new Date());//数据库时区不对 使用系统时间
         asset.setGmtModified(new Date());
         boolean result = this.save(asset);
-        if (result && StringUtils.isNotBlank(req.getGblDir())) {
+        if (result) {
             asset = this.getById(asset.getId());
-            asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
-            this.updateById(asset);
+            if(StringUtils.isNotBlank(req.getGblDir())){
+                asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
+                this.updateById(asset);
+            }
             sendMsg(asset);
         }
         return result;
