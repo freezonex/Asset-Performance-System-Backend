@@ -4,35 +4,42 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MqttConfig {
 
-    /**
-     * 创建并初始化一个IMqttClient实例，用于与MQTT服务器建立连接。
-     *
-     * @return IMqttClient 返回初始化好的MQTT客户端实例。
-     * @throws MqttException 如果建立连接时发生错误，则抛出MqttException。
-     */
+    @Value("${mqtt.broker-url}")
+    private String brokerUrl;
+
+    @Value("${mqtt.client-id}")
+    private String clientId;
+
+    @Value("${mqtt.connection-timeout}")
+    private int connectionTimeout;
+
+    @Value("${mqtt.clean-session}")
+    private boolean cleanSession;
+
+    @Value("${mqtt.automatic-reconnect}")
+    private boolean automaticReconnect;
+
     @Bean
-    public IMqttClient mqttClient() throws MqttException {
-        // 设置发布者ID
-        String publisherId = "aps-mqtt";
-        // 创建MqttClient实例，连接地址和客户端ID
-        IMqttClient client = new MqttClient("tcp://47.236.10.165:30884", publisherId);
-
-        // 配置连接选项
-        MqttConnectOptions options = new MqttConnectOptions();
-        options.setAutomaticReconnect(true); // 开启自动重连
-        options.setCleanSession(true); // 设置会话清除标志
-        options.setConnectionTimeout(10); // 设置连接超时时间
-
-        // 使用配置选项连接到MQTT服务器
-        client.connect(options);
-
+    public IMqttClient mqttClient() {
+        IMqttClient client = null;
+        try {
+            client = new MqttClient(brokerUrl, clientId);
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setAutomaticReconnect(automaticReconnect);
+            options.setCleanSession(cleanSession);
+            options.setConnectionTimeout(connectionTimeout);
+            client.connect(options);
+        } catch (MqttException e) {
+            System.err.println("Failed to connect to MQTT broker: " + e.getMessage());
+            // Handle or log the exception as needed
+        }
         return client;
     }
-
 }

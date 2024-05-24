@@ -33,3 +33,10 @@ asset:
     dir: /app/aps/attachments/
   download:
     website: http://47.236.10.165:30090
+
+mqtt:
+  broker-url: "tcp://47.236.10.165:30884"
+  client-id: "aps-mqtt"
+  connection-timeout: 10
+  clean-session: true
+  automatic-reconnect: true
