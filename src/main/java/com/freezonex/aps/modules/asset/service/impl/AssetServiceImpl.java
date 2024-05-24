@@ -130,6 +130,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         asset.setId(req.getId());
         asset.setGmtCreate(oldAsset.getGmtCreate());
         asset.setGmtModified(new Date());
+        asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
         boolean update = this.updateById(asset);
         if (update) {
             sendMsg(this.getById(req.getId()));
