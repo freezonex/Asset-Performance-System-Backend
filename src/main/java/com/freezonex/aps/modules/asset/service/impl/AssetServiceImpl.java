@@ -243,7 +243,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             jsonObject.put("since", asset.getGmtCreate().getTime());
             jsonObject.put("iframeAddress", asset.getModelUrl());
             jsonObject.put("Maintenance Log", asset.getSn());
-            mqttSender.sendMessage(asset.getAssetName(), jsonObject.toJSONString());
+            mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
         } catch (MqttException e) {
             log.error("send mqtt error", e);
         }
