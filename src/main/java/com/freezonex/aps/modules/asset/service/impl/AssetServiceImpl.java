@@ -225,6 +225,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private void sendMsg(Long id) {
         try {
             Asset asset = this.getById(id);
+            if(asset.getGmtCreate()==null){
+                asset.setGmtCreate(new Date());
+            }
+            if(asset.getGmtModified()==null){
+                asset.setGmtModified(new Date());
+            }
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("assetName", asset.getAssetName());
             jsonObject.put("assetDescription", asset.getDescription());
@@ -240,7 +246,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             mqttSender.sendMessage(asset.getAssetName(), jsonObject.toJSONString());
         } catch (MqttException e) {
             log.error("send mqtt error", e);
-            throw new RuntimeException(e);
         }
     }
 
