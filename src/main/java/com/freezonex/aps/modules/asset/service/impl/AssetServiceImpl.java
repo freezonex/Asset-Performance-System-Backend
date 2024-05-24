@@ -1,6 +1,7 @@
 package com.freezonex.aps.modules.asset.service.impl;
 
 import cn.hutool.core.lang.UUID;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -17,7 +18,10 @@ import com.freezonex.aps.modules.asset.model.Department;
 import com.freezonex.aps.modules.asset.service.AssetService;
 import com.freezonex.aps.modules.asset.service.AssetTypeService;
 import com.freezonex.aps.modules.asset.service.DepartmentService;
+import com.freezonex.aps.modules.asset.service.MqttSender;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,7 @@ import java.util.*;
  * @since 2024-05-06
  */
 @Service
+@Slf4j
 public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements AssetService {
 
     @Resource
@@ -47,6 +52,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
     @Resource
     private DepartmentService departmentService;
+
+    @Resource
+    private MqttSender mqttSender;
 
     @Value("${asset.upload.dir}")
     private String uploadDir;
@@ -80,7 +88,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 Asserts.fail("Department not found");
             }
             req.setDepartment(department.getDepartmentName());
-        }else{
+        } else {
             req.setDepartment(null);
         }
         req.setAssetType(assetTypeDTO.getAssetType());
@@ -91,10 +99,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Asset asset = assetConvert.toAsset(req);
         asset.setGmtCreate(new Date());//数据库时区不对 使用系统时间
         boolean result = this.save(asset);
-        if(StringUtils.isNotBlank(req.getGblDir())){
-            asset.setGlbUrl(website+"/apsbackend/asset/download?type=2&id="+asset.getId());
+        if (result && StringUtils.isNotBlank(req.getGblDir())) {
+            asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
+            this.updateById(asset);
+            sendMsg(asset);
         }
-        this.updateById(asset);
         return result;
     }
 
@@ -118,7 +127,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Asset asset = assetConvert.toAsset(req);
         LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();
         updateWrapper.eq(Asset::getId, req.getId());
-        return this.update(asset, updateWrapper);
+        boolean update = this.update(asset, updateWrapper);
+        if (update) {
+            sendMsg(asset);
+        }
+        return update;
     }
 
     @Override
@@ -205,6 +218,27 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         LambdaQueryWrapper<Asset> query = new LambdaQueryWrapper<>();
         query.eq(Asset::getUsedStatus, 1);
         return this.count(query);
+    }
+
+    private void sendMsg(Asset asset) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("assetName", asset.getAssetName());
+            jsonObject.put("assetDescription", asset.getDescription());
+            jsonObject.put("assetCode", asset.getAssetId());
+            jsonObject.put("pageNo", new Random().nextInt(5) + 1);
+            jsonObject.put("indicatorCode", asset.getVendorModel());
+            jsonObject.put("pageSize", 10);
+            jsonObject.put("assetTypeCode", asset.getAssetType());
+            jsonObject.put("until", asset.getGmtModified().getTime());
+            jsonObject.put("since", asset.getGmtCreate().getTime());
+            jsonObject.put("iframeAddress", asset.getModelUrl());
+            jsonObject.put("Maintenance Log", asset.getSn());
+            mqttSender.sendMessage(asset.getAssetName(), jsonObject.toJSONString());
+        } catch (MqttException e) {
+            log.error("send mqtt error", e);
+            throw new RuntimeException(e);
+        }
     }
 
 }
