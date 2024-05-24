@@ -126,11 +126,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             req.setUsedStatus(oldAsset.getUsedStatus());
             req.setUsedDate(oldAsset.getUsedDate());
         }
+        if(StringUtils.isBlank(req.getGlbUrl())){
+            //保证编辑 的时候也有url
+            req.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + req.getId());
+        }
         Asset asset = assetConvert.toAsset(req);
         asset.setId(req.getId());
         asset.setGmtCreate(oldAsset.getGmtCreate());
         asset.setGmtModified(new Date());
-        asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
         boolean update = this.updateById(asset);
         if (update) {
             sendMsg(this.getById(req.getId()));
