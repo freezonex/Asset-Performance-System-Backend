@@ -98,11 +98,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         Asset asset = assetConvert.toAsset(req);
         asset.setGmtCreate(new Date());//数据库时区不对 使用系统时间
+        asset.setGmtModified(new Date());
         boolean result = this.save(asset);
         if (result && StringUtils.isNotBlank(req.getGblDir())) {
             asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
             this.updateById(asset);
-            sendMsg(asset);
+            sendMsg(asset.getId());
         }
         return result;
     }
@@ -125,11 +126,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             req.setUsedDate(oldAsset.getUsedDate());
         }
         Asset asset = assetConvert.toAsset(req);
+        asset.setGmtModified(new Date());
         LambdaUpdateWrapper<Asset> updateWrapper = new UpdateWrapper<Asset>().lambda();
         updateWrapper.eq(Asset::getId, req.getId());
         boolean update = this.update(asset, updateWrapper);
         if (update) {
-            sendMsg(asset);
+            sendMsg(req.getId());
         }
         return update;
     }
@@ -220,8 +222,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return this.count(query);
     }
 
-    private void sendMsg(Asset asset) {
+    private void sendMsg(Long id) {
         try {
+            Asset asset = this.getById(id);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("assetName", asset.getAssetName());
             jsonObject.put("assetDescription", asset.getDescription());
