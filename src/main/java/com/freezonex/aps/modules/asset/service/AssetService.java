@@ -50,4 +50,6 @@ public interface AssetService extends IService<Asset> {
 
     Long getUsedCount();
 
+    void sendMsg(Asset asset);
+
 }

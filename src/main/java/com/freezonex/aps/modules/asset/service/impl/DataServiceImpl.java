@@ -50,7 +50,15 @@ public class DataServiceImpl implements DataService {
         initInventory();
         initWorkOrder();
         initMaintenance();
+        sendMqttMsg();
         return true;
+    }
+
+    private void sendMqttMsg(){
+        List<Asset> list = assetService.list();
+        for (Asset asset : list) {
+            assetService.sendMsg(asset);
+        }
     }
 
     private void clearAll() {

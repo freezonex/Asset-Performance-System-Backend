@@ -103,7 +103,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         if (result && StringUtils.isNotBlank(req.getGblDir())) {
             asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
             this.updateById(asset);
-            sendMsg(asset.getId());
+            sendMsg(this.getById(asset.getId()));
         }
         return result;
     }
@@ -131,7 +131,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         asset.setGmtModified(new Date());
         boolean update = this.updateById(asset);
         if (update) {
-            sendMsg(req.getId());
+            sendMsg(this.getById(req.getId()));
         }
         return update;
     }
@@ -222,31 +222,34 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         return this.count(query);
     }
 
-    private void sendMsg(Long id) {
-        try {
-            Asset asset = this.getById(id);
-            if(asset.getGmtCreate()==null){
-                asset.setGmtCreate(new Date());
+    public void sendMsg(Asset asset) {
+        for (int i = 0; i < 5; i++) {
+            //发5次请求
+            try {
+                if(asset.getGmtCreate()==null){
+                    asset.setGmtCreate(new Date());
+                }
+                if(asset.getGmtModified()==null){
+                    asset.setGmtModified(new Date());
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("assetName", asset.getAssetName());
+                jsonObject.put("assetDescription", asset.getDescription());
+                jsonObject.put("assetCode", asset.getAssetId());
+                jsonObject.put("pageNo", new Random().nextInt(5) + 1);
+                jsonObject.put("indicatorCode", asset.getVendorModel());
+                jsonObject.put("pageSize", 10);
+                jsonObject.put("assetTypeCode", asset.getAssetType());
+                jsonObject.put("until", asset.getGmtModified().getTime());
+                jsonObject.put("since", asset.getGmtCreate().getTime());
+                jsonObject.put("iframeAddress", asset.getModelUrl());
+                jsonObject.put("Maintenance Log", asset.getSn());
+                mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
+            } catch (MqttException e) {
+                log.error("send mqtt error", e);
             }
-            if(asset.getGmtModified()==null){
-                asset.setGmtModified(new Date());
-            }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("assetName", asset.getAssetName());
-            jsonObject.put("assetDescription", asset.getDescription());
-            jsonObject.put("assetCode", asset.getAssetId());
-            jsonObject.put("pageNo", new Random().nextInt(5) + 1);
-            jsonObject.put("indicatorCode", asset.getVendorModel());
-            jsonObject.put("pageSize", 10);
-            jsonObject.put("assetTypeCode", asset.getAssetType());
-            jsonObject.put("until", asset.getGmtModified().getTime());
-            jsonObject.put("since", asset.getGmtCreate().getTime());
-            jsonObject.put("iframeAddress", asset.getModelUrl());
-            jsonObject.put("Maintenance Log", asset.getSn());
-            mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
-        } catch (MqttException e) {
-            log.error("send mqtt error", e);
         }
+
     }
 
 }
