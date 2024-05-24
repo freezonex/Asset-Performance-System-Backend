@@ -102,10 +102,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         boolean result = this.save(asset);
         if (result) {
             asset = this.getById(asset.getId());
-            if(StringUtils.isNotBlank(req.getGblDir())){
-                asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
-                this.updateById(asset);
-            }
+            asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
+            this.updateById(asset);
             sendMsg(asset);
         }
         return result;
