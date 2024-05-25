@@ -314,9 +314,26 @@ public class DataServiceImpl implements DataService {
         assets.addAll(lastList2);
         assets.addAll(lastList1);
         assetService.saveBatch(assets);
+
         List<Asset> list = assetService.list();
+        // 建立名称到URL的映射
+        Map<String, String> assetUrlMap = new HashMap<>();
+        assetUrlMap.put("Dog", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb");
+        assetUrlMap.put("Table", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Demo_table_textured_mesh_glb.glb");
+        assetUrlMap.put("OMC", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Omc_textured_mesh_glb.glb");
+        assetUrlMap.put("SIS", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/SIS_textured_mesh_glb.glb");
+
+        // 获取随机URL
+        String[] randomUrls = {
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb"
+        };
+
+        Random random = new Random();
         for (Asset asset : list) {
-            asset.setGlbUrl(website+"/apsbackend/asset/download?type=2&id="+asset.getId());
+            String assetName = asset.getAssetName();
+            // 根据资产名称获取对应的URL
+            String url = assetUrlMap.getOrDefault(assetName, randomUrls[random.nextInt(randomUrls.length)]);
+            asset.setGlbUrl(url);
         }
         assetService.updateBatchById(list);
     }
