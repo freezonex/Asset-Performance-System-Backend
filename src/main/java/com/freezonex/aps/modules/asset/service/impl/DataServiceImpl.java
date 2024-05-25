@@ -325,7 +325,28 @@ public class DataServiceImpl implements DataService {
 
         // 获取随机URL
         String[] randomUrls = {
-                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb"
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/kuma_heavy_robot_r-9000.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/low-poly_truck_car_drifter.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/beetlefusca_version_1.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/betta_splendens.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/buster_drone.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/colt_m1911.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/dancing_crab_-_uca_mjoebergi.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/free__lamborghini_terzo_millennio.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/free_cyberpunk_hovercar.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/hover_bike_-_the_rocket.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/kuma_heavy_robot_r-9000.glb", // This repeats; consider if you need duplicates.
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/low-poly_truck_car_drifter.glb", // This repeats; consider if you need duplicates.
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/mech_drone%20%282%29.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/mercenary_astronaut.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/old_fridge.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/pacman_arcade__animation.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/reap_the_whirlwind%20%283%29.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/stesla_-_elephant_steam_engines.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/stylized_ww1_plane.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/toon_cat_free.glb",
+                "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/tower_house_design.glb"
         };
 
         Random random = new Random();
