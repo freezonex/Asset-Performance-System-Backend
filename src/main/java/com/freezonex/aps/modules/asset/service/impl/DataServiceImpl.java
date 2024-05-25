@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +54,6 @@ public class DataServiceImpl implements DataService {
         return true;
     }
 
-    @Async
     protected void sendMqttMsg(){
         List<Asset> list = assetService.list();
         for (Asset asset : list) {
