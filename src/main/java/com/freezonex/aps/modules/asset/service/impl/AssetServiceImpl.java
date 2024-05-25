@@ -74,9 +74,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         Page<Asset> assetPage = this.getBaseMapper().selectPage(page, query);
 
         // Set the URL for each asset if glbDir is not null or empty
-        assetPage.getRecords().forEach(asset -> {
+        assetPage.getRecords().parallelStream().forEach(asset -> {
             if (StringUtils.isNotBlank(asset.getGblDir())) {
-                asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getAssetId());
+                asset.setGlbUrl(website + "/apsbackend/asset/download?type=2&id=" + asset.getId());
             }
         });
 
