@@ -40,14 +40,3 @@ mqtt:
   connection-timeout: 10
   clean-session: true
   automatic-reconnect: true
-
-druid:
-  minIdle: 5
-  maxActive: 20
-  testWhileIdle: true
-  testOnBorrow: true
-  testOnReturn: false
-  validationQuery: SELECT 1
-  timeBetweenEvictionRunsMillis: 30000
-  minEvictableIdleTimeMillis: 60000
-  keepAlive: true
