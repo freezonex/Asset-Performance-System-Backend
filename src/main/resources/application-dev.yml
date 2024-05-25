@@ -2,7 +2,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
-      url: jdbc:mysql://${SUPOS_HOSTED_HOST:lake-sql-mariadb-95c7b626dc.default.svc}:${SUPOS_HOSTED_PORT:3306}/${SUPOS_HOSTED_DBNAME:apsdatabase}?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+      url: jdbc:mysql://${SUPOS_HOSTED_HOST:lake-sql-mariadb-95c7b626dc.default.svc}:${SUPOS_HOSTED_PORT:3306}/${SUPOS_HOSTED_DBNAME:apsdatabase}?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC&connectTimeout=15000&socketTimeout=30000
       username: ${SUPOS_HOSTED_USERNAME:supos_549bed47}
       password: ${SUPOS_HOSTED_PASSWORD:d18391335b2750}
       initial-size: 5
