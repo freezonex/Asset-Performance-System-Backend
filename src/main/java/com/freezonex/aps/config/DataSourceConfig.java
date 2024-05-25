@@ -68,8 +68,8 @@ public class DataSourceConfig {
         dataSource.setRemoveAbandoned(removeAbandoned);
         dataSource.setRemoveAbandonedTimeoutMillis(removeAbandonedTimeoutMillis);
         dataSource.setKeepAlive(keepAlive);
-
-        dataSource.setConnectionProperties("connectTimeout=86400000;socketTimeout=86400000");
+        dataSource.setSocketTimeout(999999);
+        dataSource.setConnectTimeout(999999);
 
         return dataSource;
     }
