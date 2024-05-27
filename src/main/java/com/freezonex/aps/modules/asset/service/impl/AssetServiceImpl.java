@@ -248,15 +248,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("assetName", asset.getAssetName());
                 jsonObject.put("assetDescription", asset.getDescription());
-                jsonObject.put("assetCode", asset.getAssetId());
-                jsonObject.put("pageNo", new Random().nextInt(5) + 1);
-                jsonObject.put("indicatorCode", asset.getVendorModel());
-                jsonObject.put("pageSize", 10);
-                jsonObject.put("assetTypeCode", asset.getAssetType());
-                jsonObject.put("until", asset.getGmtModified().getTime());
-                jsonObject.put("since", asset.getGmtCreate().getTime());
+                jsonObject.put("Status", asset.getStatus());
+                jsonObject.put("Responsible Person", asset.getResponsiblePerson());
+                jsonObject.put("Asset Type", asset.getAssetType());
+                jsonObject.put("SN", asset.getSn());
+                jsonObject.put("Department", asset.getDepartment());
+                jsonObject.put("Location", asset.getLocation());
+                jsonObject.put("Value", asset.getValue());
                 jsonObject.put("iframeAddress", asset.getModelUrl());
-                jsonObject.put("Maintenance Log", asset.getSn());
                 mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
             } catch (MqttException e) {
                 log.error("send mqtt error", e);
