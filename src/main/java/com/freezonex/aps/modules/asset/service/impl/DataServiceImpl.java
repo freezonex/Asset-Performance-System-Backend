@@ -369,7 +369,6 @@ public class DataServiceImpl implements DataService {
 
         Random random = new Random();
         String defaultUrl = randomUrls[random.nextInt(randomUrls.length)];
-        String defaultModelUrl = randomUrlToModelUrlMap.get(defaultUrl);
 
         for (Asset asset : list) {
             String assetName = asset.getAssetName();
@@ -377,7 +376,7 @@ public class DataServiceImpl implements DataService {
             String url = assetUrlMap.getOrDefault(assetName, defaultUrl);
             asset.setGlbUrl(url);
             // 设置modelUrl
-            String modelUrl = modelUrlMap.getOrDefault(assetName, randomUrlToModelUrlMap.getOrDefault(url, defaultModelUrl));
+            String modelUrl = modelUrlMap.getOrDefault(assetName, randomUrlToModelUrlMap.get(url));
             asset.setModelUrl(modelUrl);
         }
         assetService.updateBatchById(list);
