@@ -349,16 +349,36 @@ public class DataServiceImpl implements DataService {
         modelUrlMap.put("OMC", "https://lumalabs.ai/embed/20e89ef6-42ae-4f31-8398-85b2e1fae5cc?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
         modelUrlMap.put("SIS", "https://lumalabs.ai/embed/b2767096-f3f8-4b50-9dea-7b14a2f5bc76?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
 
+        // 创建 randomUrl 到 modelUrl 的映射
+        Map<String, String> randomUrlToModelUrlMap = new HashMap<>();
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/buster_drone.glb", "https://sketchfab.com/models/294e79652f494130ad2ab00a13fdbafd/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/free__lamborghini_terzo_millennio.glb","https://sketchfab.com/models/7ad3dffa9d344c3c978eafcc220cb709/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/old_fridge.glb","https://sketchfab.com/models/6b2862c241754f5d81690e8664e41091/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/stylized_ww1_plane.glb","https://sketchfab.com/models/c4edeb0e410f46e8a4db320879f0a1db/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/free_merc_hovercar.glb","https://sketchfab.com/models/oFfjKlslHqXgtKdKqEtpffmSv6h/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/free_porsche_911_carrera_4s.glb","https://sketchfab.com/models/d01b254483794de3819786d93e0e1ebf/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/mando_helmet.glb","https://sketchfab.com/models/9da2e7fc67de443e95e190fc0c29f0c7/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/medieval_chest.glb","https://sketchfab.com/models/037b03a3e0274279be4b93b7c7cedf01/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/old_paper__cardboard_boxes.glb","https://sketchfab.com/models/72a4804f8a4d4de18e59abb60b81c54f/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/old_tree.glb","https://sketchfab.com/models/5793911821d04f73926ac4ab1d46727a/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/painterly_cottage.glb","https://sketchfab.com/models/0772aec70d584c60a27000af5f6c1ef4/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/pony_cartoon.glb","https://sketchfab.com/models/885d9f60b3a9429bb4077cfac5653cf9/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/retro-modernized_pip_boy_editable_screen.glb","https://sketchfab.com/models/33eb56eaf34e4fd08e2437a10b4f44e5/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/shiba.glb","https://sketchfab.com/models/faef9fe5ace445e7b2989d1c1ece361c/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+        randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/used_new_balance_574_classic______free.glb","https://sketchfab.com/models/f0aad4f64925479da3f607b186314eef/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
+
         Random random = new Random();
+        String defaultUrl = randomUrls[random.nextInt(randomUrls.length)];
+        String defaultModelUrl = randomUrlToModelUrlMap.get(defaultUrl);
+
         for (Asset asset : list) {
             String assetName = asset.getAssetName();
             // 根据资产名称获取对应的URL
-            String url = assetUrlMap.getOrDefault(assetName, randomUrls[random.nextInt(randomUrls.length)]);
+            String url = assetUrlMap.getOrDefault(assetName, defaultUrl);
             asset.setGlbUrl(url);
             // 设置modelUrl
-            if (modelUrlMap.containsKey(assetName)) {
-                asset.setModelUrl(modelUrlMap.get(assetName));
-            }
+            String modelUrl = modelUrlMap.getOrDefault(assetName, randomUrlToModelUrlMap.getOrDefault(url, defaultModelUrl));
+            asset.setModelUrl(modelUrl);
         }
         assetService.updateBatchById(list);
     }
