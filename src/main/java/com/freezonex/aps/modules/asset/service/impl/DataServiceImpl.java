@@ -342,6 +342,12 @@ public class DataServiceImpl implements DataService {
                 "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/used_new_balance_574_classic______free.glb"
         };
 
+        // 建立名称到modelUrl的映射
+        Map<String, String> modelUrlMap = new HashMap<>();
+        modelUrlMap.put("Dog", "https://lumalabs.ai/embed/ade32a6a-9e7b-45d7-bf40-767248a76950?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
+        modelUrlMap.put("Table", "https://lumalabs.ai/embed/67b5f04c-9f98-4d36-8f37-7688185c1d75?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
+        modelUrlMap.put("OMC", "https://lumalabs.ai/embed/20e89ef6-42ae-4f31-8398-85b2e1fae5cc?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
+        modelUrlMap.put("SIS", "https://lumalabs.ai/embed/b2767096-f3f8-4b50-9dea-7b14a2f5bc76?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
 
         Random random = new Random();
         for (Asset asset : list) {
@@ -349,6 +355,10 @@ public class DataServiceImpl implements DataService {
             // 根据资产名称获取对应的URL
             String url = assetUrlMap.getOrDefault(assetName, randomUrls[random.nextInt(randomUrls.length)]);
             asset.setGlbUrl(url);
+            // 设置modelUrl
+            if (modelUrlMap.containsKey(assetName)) {
+                asset.setModelUrl(modelUrlMap.get(assetName));
+            }
         }
         assetService.updateBatchById(list);
     }
