@@ -368,12 +368,10 @@ public class DataServiceImpl implements DataService {
         randomUrlToModelUrlMap.put("https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/used_new_balance_574_classic______free.glb","https://sketchfab.com/models/f0aad4f64925479da3f607b186314eef/embed?autospin=1&autostart=1&preload=1&ui_theme=dark");
 
         Random random = new Random();
-        String defaultUrl = randomUrls[random.nextInt(randomUrls.length)];
-
         for (Asset asset : list) {
             String assetName = asset.getAssetName();
             // 根据资产名称获取对应的URL
-            String url = assetUrlMap.getOrDefault(assetName, defaultUrl);
+            String url = assetUrlMap.getOrDefault(assetName, randomUrls[random.nextInt(randomUrls.length)]);
             asset.setGlbUrl(url);
             // 设置modelUrl
             String modelUrl = modelUrlMap.getOrDefault(assetName, randomUrlToModelUrlMap.get(url));
