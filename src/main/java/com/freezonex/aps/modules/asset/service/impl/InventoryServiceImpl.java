@@ -3,6 +3,8 @@ package com.freezonex.aps.modules.asset.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.freezonex.aps.common.api.CommonPage;
@@ -304,8 +306,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         Inventory inventory = getInventory(req.getAssetTypeId(), req.getExpectedDate());
         if (inventory != null) {
-            //删除 使用新创建的覆盖
-            this.removeById(inventory.getId());
+            LambdaUpdateWrapper<Inventory> updateWrapper = new UpdateWrapper<Inventory>().lambda();
+            updateWrapper.set(Inventory::getAi, 0);
+            updateWrapper.set(Inventory::getExpectedQuantity, req.getExpectedQuantity());
+            updateWrapper.eq(Inventory::getId, inventory.getId());
+            return this.update(updateWrapper);
         }
         inventory = new Inventory();
         inventory.setAi(0);
