@@ -36,7 +36,7 @@ asset:
   upload:
     dir: /app/aps/attachments/
   download:
-    website: http://47.236.10.165:30090
+    website: https://supos.app:8080
 
 mqtt:
   broker-url: "tcp://supos.app:1883"
