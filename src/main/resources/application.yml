@@ -1,9 +1,9 @@
 server:
   port: 8080
-  ssl:
-    key-store: classpath:supos.app.jks
-    key-store-password: hq655xh9
-    key-store-type: JKS
+#  ssl:
+#    key-store: classpath:supos.app.jks
+#    key-store-password: hq655xh9
+#    key-store-type: JKS
 
 spring:
   application:
