@@ -30,7 +30,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         return SwaggerProperties.builder()
                 .apiBasePackage("com.freezonex.aps")
                 .title("APM")
-                .description("APM接口文档")
+                .description("APM document")
                 .contactName("APM")
                 .version("1.0")
                 .enableSecurity(true)
