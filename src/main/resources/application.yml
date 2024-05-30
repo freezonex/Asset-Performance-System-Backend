@@ -40,7 +40,7 @@ asset:
 
 mqtt:
   broker-url: "tcp://supos.app:1883"
-  client-id: "aps-mqtt"
+  client-id: "aps-mqtt-sg-office"
   connection-timeout: 10
   clean-session: true
   automatic-reconnect: true

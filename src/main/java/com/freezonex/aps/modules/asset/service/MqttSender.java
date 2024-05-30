@@ -14,7 +14,7 @@ public class MqttSender {
 
     @Autowired
     private IMqttClient mqttClient;
-    private static final int MAX_RETRY_COUNT = 10; // 最大重试次数
+    private static final int MAX_RETRY_COUNT = 5; // 最大重试次数
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttSender.class); // 使用SLF4J日志记录器
     @Async
     public void sendMessage(String topic, String payload) {
