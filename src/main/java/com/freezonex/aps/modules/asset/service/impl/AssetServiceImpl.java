@@ -236,32 +236,24 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     public void sendMsg(Asset asset) {
-        for (int i = 0; i < 5; i++) {
-            //发5次请求
-            try {
-                if(asset.getGmtCreate()==null){
-                    asset.setGmtCreate(new Date());
-                }
-                if(asset.getGmtModified()==null){
-                    asset.setGmtModified(new Date());
-                }
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("assetName", asset.getAssetName());
-                jsonObject.put("assetDescription", asset.getDescription());
-                jsonObject.put("Status", asset.getStatus());
-                jsonObject.put("Responsible Person", asset.getResponsiblePerson());
-                jsonObject.put("Asset Type", asset.getAssetType());
-                jsonObject.put("SN", asset.getSn());
-                jsonObject.put("Department", asset.getDepartment());
-                jsonObject.put("Location", asset.getLocation());
-                jsonObject.put("Value", asset.getValue());
-                jsonObject.put("iframeAddress", asset.getModelUrl());
-                mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
-            } catch (MqttException e) {
-                log.error("send mqtt error", e);
-            }
+        if(asset.getGmtCreate()==null){
+            asset.setGmtCreate(new Date());
         }
-
+        if(asset.getGmtModified()==null){
+            asset.setGmtModified(new Date());
+        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("assetName", asset.getAssetName());
+        jsonObject.put("assetDescription", asset.getDescription());
+        jsonObject.put("Status", asset.getStatus());
+        jsonObject.put("Responsible Person", asset.getResponsiblePerson());
+        jsonObject.put("Asset Type", asset.getAssetType());
+        jsonObject.put("SN", asset.getSn());
+        jsonObject.put("Department", asset.getDepartment());
+        jsonObject.put("Location", asset.getLocation());
+        jsonObject.put("Value", asset.getValue());
+        jsonObject.put("iframeAddress", asset.getModelUrl());
+        mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
+        System.out.println("成功");
     }
-
 }
