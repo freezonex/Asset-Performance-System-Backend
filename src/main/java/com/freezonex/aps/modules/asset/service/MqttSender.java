@@ -48,7 +48,7 @@ public class MqttSender {
         }
         try {
             // 指数退避策略，逐步增加等待时间
-            long delay = 100 * attempt;
+            long delay = 1000 * attempt;
             LOGGER.info("Waiting {} milliseconds before retry.", delay);
             Thread.sleep(delay);
         } catch (InterruptedException ie) {
