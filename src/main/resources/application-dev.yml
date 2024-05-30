@@ -2,9 +2,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
-#      url: jdbc:mysql://${SUPOS_HOSTED_HOST:aps-mysql.aps}:${SUPOS_HOSTED_PORT:3306}/${SUPOS_HOSTED_DBNAME:apsdatabase}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC&connectTimeout=86400&socketTimeout=86400&autoReconnect=true&autoReconnectForPools=true
-#      username: ${SUPOS_HOSTED_USERNAME:root}
-#      password: ${SUPOS_HOSTED_PASSWORD:1234567}
+      url: jdbc:mysql://${SUPOS_HOSTED_HOST:aps-mysql.aps}:${SUPOS_HOSTED_PORT:3306}/${SUPOS_HOSTED_DBNAME:apsdatabase}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC&connectTimeout=86400&socketTimeout=86400&autoReconnect=true&autoReconnectForPools=true
+      username: ${SUPOS_HOSTED_USERNAME:root}
+      password: ${SUPOS_HOSTED_PASSWORD:1234567}
       initial-size: 5
       min-idle: 5
       max-active: 20
