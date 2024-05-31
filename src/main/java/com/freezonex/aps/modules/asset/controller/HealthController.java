@@ -25,7 +25,7 @@ public class HealthController {
     @ResponseBody
     public String health() {
         logger.info("health is ok!");
-        return "aps-health-is-ok";
+        return "aps-health-is-ok-!";
     }
 
 
