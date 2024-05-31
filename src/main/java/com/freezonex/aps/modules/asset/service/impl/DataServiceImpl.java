@@ -341,7 +341,7 @@ public class DataServiceImpl implements DataService {
     private static Map<String, String> getAssetUrlMap() {
         // 建立名称到URL的映射
         Map<String, String> assetUrlMap = new HashMap<>();
-        assetUrlMap.put("Dog", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb");
+        assetUrlMap.put("LeggedRobot", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Dog_textured_mesh_glb.glb");
         assetUrlMap.put("Table", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Demo_table_textured_mesh_glb.glb");
         assetUrlMap.put("OMC", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/Omc_textured_mesh_glb.glb");
         assetUrlMap.put("SIS", "https://freezonex-aps.oss-ap-southeast-1.aliyuncs.com/SIS_textured_mesh_glb.glb");
@@ -373,7 +373,7 @@ public class DataServiceImpl implements DataService {
     private static Map<String, String> getModelUrlMap() {
         // 建立名称到modelUrl的映射
         Map<String, String> modelUrlMap = new HashMap<>();
-        modelUrlMap.put("Dog", "https://lumalabs.ai/embed/ade32a6a-9e7b-45d7-bf40-767248a76950?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
+        modelUrlMap.put("LeggedRobot", "https://lumalabs.ai/embed/ade32a6a-9e7b-45d7-bf40-767248a76950?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
         modelUrlMap.put("Table", "https://lumalabs.ai/embed/67b5f04c-9f98-4d36-8f37-7688185c1d75?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
         modelUrlMap.put("OMC", "https://lumalabs.ai/embed/20e89ef6-42ae-4f31-8398-85b2e1fae5cc?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
         modelUrlMap.put("SIS", "https://lumalabs.ai/embed/b2767096-f3f8-4b50-9dea-7b14a2f5bc76?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false");
@@ -573,7 +573,7 @@ public class DataServiceImpl implements DataService {
         ));
 
         assetComponentsWithDescriptions.put("Freezonex", Lists.newArrayList(
-                new AssetComponent("Dog", "This 3D model shows a \"robot dog\". It has four articulated legs for agile movement, sensors on its head for navigation and environment perception, and a handle on top for easy carrying. The robot is pictured in an office setting, indicating it is used for demonstration or research purposes."),
+                new AssetComponent("LeggedRobot", "This 3D model shows a \"robot dog\". It has four articulated legs for agile movement, sensors on its head for navigation and environment perception, and a handle on top for easy carrying. The robot is pictured in an office setting, indicating it is used for demonstration or research purposes."),
                 new AssetComponent("Table", "This 3D model shows a modern, curved display table with multiple monitors set up on top. The table is metallic and situated in a high-tech environment, possibly an exhibition or a control room, with various electronic equipment and components mounted on the walls in the background."),
                 new AssetComponent("OMC", "This 3D model shows a vertical arrangement of industrial electronic modules mounted on a panel. Each module is connected with various cables and has status indicators showing operational conditions. The setup is part of an industrial automation system, designed for process control and monitoring."),
                 new AssetComponent("SIS", "This 3D model shows a SUPCON industrial control system rack with multiple modular components. Each module has indicators showing operational status and connectivity, including network interfaces and signal processing units. The system is designed for high reliability and safety in industrial automation applications.")
