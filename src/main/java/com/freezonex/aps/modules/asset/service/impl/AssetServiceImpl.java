@@ -256,4 +256,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         mqttSender.sendMessage("SIB/Singapore/Office/"+asset.getAssetName(), jsonObject.toJSONString());
         System.out.println("成功");
     }
+
+    @Override
+    public List<Asset> getAssetByAssetTypeId(Long assetTypeId) {
+        return this.baseMapper.getAssetByAssetTypeId(assetTypeId);
+    }
 }

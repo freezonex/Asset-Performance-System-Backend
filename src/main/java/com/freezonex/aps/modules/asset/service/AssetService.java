@@ -52,4 +52,5 @@ public interface AssetService extends IService<Asset> {
 
     void sendMsg(Asset asset);
 
+    List<Asset> getAssetByAssetTypeId(Long assetTypeId);
 }
