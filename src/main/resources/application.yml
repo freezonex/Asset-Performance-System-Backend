@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8087
 #  ssl:
 #    key-store: classpath:supos.app.jks
 #    key-store-password: hq655xh9

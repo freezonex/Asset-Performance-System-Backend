@@ -19,6 +19,17 @@ spring:
       keep-alive: true
       remove-abandoned: true
       remove-abandoned-timeout-millis: 300000
+      filters: stat,wall,log4j
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+        reset-enable: false
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
   sql:
     init:
       schema-locations: classpath:sql/schema.sql
