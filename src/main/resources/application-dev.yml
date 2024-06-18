@@ -32,3 +32,11 @@ logging:
     com.supos.assets: debug
     com.alibaba.druid.pool: debug
     org.springframework.jdbc.core: debug
+#Debezium配置
+customer:
+  datasource:
+    host: localhost
+    port: 3306
+    database: apsdatabase
+    username: root
+    password: 1234567
