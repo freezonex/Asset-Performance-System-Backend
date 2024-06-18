@@ -12,7 +12,7 @@ WORKDIR /home/app
 RUN mvn package -DskipTests
 
 # Stage 2: Create the image with the JAR file
-FROM openjdk:8
+FROM openjdk:17
 
 # Copy the JAR file from the build stage to the /app directory in the image
 COPY --from=build /home/app/target/aps-0.0.1-SNAPSHOT.jar /app/app.jar
