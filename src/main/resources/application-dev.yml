@@ -35,8 +35,8 @@ logging:
 #Debezium配置
 customer:
   datasource:
-    host: lake-sql-mariadb-95c7b626dc.default.svc
+    host: aps-mysql.aps
     port: 3306
     database: apsdatabase
-    username: supos_549bed47
-    password: d18391335b2750
+    username: root
+    password: 1234567
