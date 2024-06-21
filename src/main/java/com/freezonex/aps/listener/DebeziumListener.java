@@ -111,12 +111,7 @@ public class DebeziumListener {
                     () -> {
                         isLeader = false;
                         log.info("This pod is no longer the leader. Attempting to stop Debezium Engine.");
-                        try {
-                            stop();
-                        } catch (IOException e) {
-                            log.error("Error stopping Debezium Engine.", e);
-                            throw new RuntimeException(e);
-                        }
+                        stop();
                     });
         }, "LeaderElectionThread").start();
         log.info("Leader election thread started.");
