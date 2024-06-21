@@ -1,11 +1,11 @@
 package com.freezonex.aps.task;
 
+import com.freezonex.aps.config.LeaderService;
 import com.freezonex.aps.modules.asset.service.DataService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 import java.util.Date;
 
@@ -19,12 +19,15 @@ public class DataInitTask {
     @Resource
     private DataService dataService;
 
+    @Resource
+    private LeaderService leaderService;
+
     /**
      * 1.每天凌晨1点执行一次
      */
     @Scheduled(cron = "0 0 1 * * ?", zone = "Asia/Shanghai")
     public void task1() {
-        initData();
+        executeAsLeader(this::initData);
     }
 
     /**
@@ -32,7 +35,13 @@ public class DataInitTask {
      */
     @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Shanghai")
     public void task2() {
-        initData();
+        executeAsLeader(this::initData);
+    }
+
+    private void executeAsLeader(Runnable task) {
+        if (leaderService.isLeader()) {
+            task.run();
+        }
     }
 
     private void initData() {

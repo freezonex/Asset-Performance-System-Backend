@@ -1,15 +1,11 @@
 package com.freezonex.aps.listener;
 
+import com.freezonex.aps.config.LeaderService;
 import io.debezium.config.Configuration;
 import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.RecordChangeEvent;
 import io.debezium.engine.format.ChangeEventFormat;
-import io.kubernetes.client.extended.leaderelection.LeaderElectionConfig;
-import io.kubernetes.client.extended.leaderelection.LeaderElector;
-import io.kubernetes.client.extended.leaderelection.resourcelock.ConfigMapLock;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.util.Config;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.apache.kafka.connect.data.Struct;
@@ -19,10 +15,8 @@ import org.springframework.stereotype.Component;
 import com.freezonex.aps.modules.asset.service.MqttSender;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -34,7 +28,8 @@ public class DebeziumListener {
     private MqttSender mqttSender;
     private final Executor executor = Executors.newSingleThreadExecutor();
     private final DebeziumEngine<RecordChangeEvent<SourceRecord>> debeziumEngine;
-    private volatile boolean isLeader = false;
+    @Resource
+    private LeaderService leaderService;
 
     public DebeziumListener(Configuration customerConnectorConfiguration) {
         log.info("Initializing DebeziumListener with configuration: {}", customerConnectorConfiguration.asProperties());
@@ -47,7 +42,7 @@ public class DebeziumListener {
 
     private void handleChangeEvent(RecordChangeEvent<SourceRecord> sourceRecordRecordChangeEvent) {
         log.debug("Received a change event: {}", sourceRecordRecordChangeEvent);
-        if (!isLeader) {
+        if (!leaderService.isLeader()) {
             log.info("Skipping change event processing because this pod is not the leader.");
             return;
         }
@@ -81,40 +76,10 @@ public class DebeziumListener {
     }
 
     @PostConstruct
-    private void start() throws IOException {
-        log.info("Starting DebeziumListener.");
-        ApiClient client = Config.defaultClient();
-        io.kubernetes.client.openapi.Configuration.setDefaultApiClient(client);
-        log.info("Kubernetes API client configured successfully.");
-
-        String appNamespace = "aps";
-        String appName = "aps-server";
-        String lockIdentity = InetAddress.getLocalHost().getHostAddress();
-        ConfigMapLock lock = new ConfigMapLock(appNamespace, appName, lockIdentity);
-        log.info("ConfigMap lock created with identity: {}", lockIdentity);
-
-        LeaderElectionConfig leaderElectionConfig = new LeaderElectionConfig(
-                lock,
-                Duration.ofMillis(10000),
-                Duration.ofMillis(8000),
-                Duration.ofMillis(2000));
-        log.info("Leader election configuration set up successfully.");
-
-        LeaderElector leaderElector = new LeaderElector(leaderElectionConfig);
-        new Thread(() -> {
-            leaderElector.run(
-                    () -> {
-                        isLeader = true;
-                        log.info("This pod is now the leader. Starting Debezium Engine.");
-                        executor.execute(debeziumEngine);
-                    },
-                    () -> {
-                        isLeader = false;
-                        log.info("This pod is no longer the leader. Attempting to stop Debezium Engine.");
-                        stop();
-                    });
-        }, "LeaderElectionThread").start();
-        log.info("Leader election thread started.");
+    private void start() {
+        if (leaderService.isLeader()) {
+            executor.execute(debeziumEngine);
+        }
     }
 
     @PreDestroy
