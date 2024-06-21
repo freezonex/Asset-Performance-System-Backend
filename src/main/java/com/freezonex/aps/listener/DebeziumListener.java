@@ -123,15 +123,18 @@ public class DebeziumListener {
     }
 
     @PreDestroy
-    private void stop() throws IOException {
+    private void stop() {
         log.info("Stopping Debezium Engine.");
-        if (Objects.nonNull(this.debeziumEngine)) {
-            this.debeziumEngine.close();
-            log.info("Debezium Engine stopped successfully.");
+        if (this.debeziumEngine != null) {
+            try {
+                this.debeziumEngine.close();
+                log.info("Debezium Engine stopped successfully.");
+            } catch (IOException e) {
+                log.error("Error stopping Debezium Engine.", e);
+            }
         } else {
-            log.info("Debezium Engine was already null.");
+            log.warn("Attempted to stop Debezium Engine but it was already null.");
         }
-    }
     }
 
 }
