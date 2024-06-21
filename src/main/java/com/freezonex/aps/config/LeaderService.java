@@ -12,15 +12,27 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 @Slf4j
 @Service
 public class LeaderService {
 
     private volatile boolean isLeader = false;
+    private List<Consumer<Boolean>> observers = new ArrayList<>();
+    public void addObserver(Consumer<Boolean> observer) {
+        observers.add(observer);
+    }
+    private void notifyObservers(boolean newLeaderStatus) {
+        for (Consumer<Boolean> observer : observers) {
+            observer.accept(newLeaderStatus);
+        }
+    }
     @PostConstruct
     public void initLeaderElection() throws IOException {
-        log.info("Starting DebeziumListener.");
+        log.info("Starting Election.");
         ApiClient client = Config.defaultClient();
         io.kubernetes.client.openapi.Configuration.setDefaultApiClient(client);
         log.info("Kubernetes API client configured successfully.");
@@ -43,11 +55,13 @@ public class LeaderService {
             leaderElector.run(
                     () -> {
                         isLeader = true;
-                        log.info("This pod is now the leader. Starting Debezium Engine.");
+                        log.info("This pod is now the leader. Starting.");
+                        notifyObservers(true);
                     },
                     () -> {
                         isLeader = false;
-                        log.info("This pod is no longer the leader. Attempting to stop Debezium Engine.");
+                        log.info("This pod is no longer the leader. Attempting to stop.");
+                        notifyObservers(false);
                     });
         }, "LeaderElectionThread").start();
         log.info("Leader election thread started.");

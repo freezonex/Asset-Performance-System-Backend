@@ -31,6 +31,19 @@ public class DebeziumListener {
     @Resource
     private LeaderService leaderService;
 
+    @PostConstruct
+    public void init() {
+        leaderService.addObserver(this::handleLeadershipChange);
+    }
+
+    private void handleLeadershipChange(boolean isNowLeader) {
+        if (isNowLeader) {
+            executor.execute(debeziumEngine);
+        } else {
+            stop();
+        }
+    }
+
     public DebeziumListener(Configuration customerConnectorConfiguration) {
         log.info("Initializing DebeziumListener with configuration: {}", customerConnectorConfiguration.asProperties());
         this.debeziumEngine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
@@ -73,13 +86,6 @@ public class DebeziumListener {
         //         log.info("Updated Data: {} with Operation: {}", payload, operation.name());
         //     }
         // }
-    }
-
-    @PostConstruct
-    private void start() {
-        if (leaderService.isLeader()) {
-            executor.execute(debeziumEngine);
-        }
     }
 
     @PreDestroy
