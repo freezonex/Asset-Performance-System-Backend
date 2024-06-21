@@ -80,7 +80,7 @@ public class DebeziumListener {
         io.kubernetes.client.openapi.Configuration.setDefaultApiClient(client);
 
         String appNamespace = "aps";
-        String appName = "apsServer";
+        String appName = "aps-server";
 
         String lockIdentity = InetAddress.getLocalHost().getHostAddress();
         ConfigMapLock lock = new ConfigMapLock(appNamespace, appName, lockIdentity);
