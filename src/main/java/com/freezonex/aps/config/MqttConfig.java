@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.util.UUID;
 
 @Configuration
 public class MqttConfig {
@@ -29,6 +30,10 @@ public class MqttConfig {
     @Bean
     public IMqttClient mqttClient() {
         IMqttClient client = null;
+        // If clientId is the default value, generate a new UUID
+        if ("default-client-id".equals(clientId)) {
+            clientId = UUID.randomUUID().toString();
+        }
         try {
             client = new MqttClient(brokerUrl, clientId);
             MqttConnectOptions options = new MqttConnectOptions();

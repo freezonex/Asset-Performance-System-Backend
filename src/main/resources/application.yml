@@ -40,7 +40,7 @@ asset:
 
 mqtt:
   broker-url: "tcp://supos.app:1883"
-  client-id: "aps-mqtt-unique"
+  client-id: "${MQTT_CLIENT_ID:default-client-id}"
   connection-timeout: 10
   clean-session: true
   automatic-reconnect: true
